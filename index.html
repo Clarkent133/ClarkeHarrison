@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icon-192x192.png">
+    <title>CH</title>
+    <meta name="description" content="A simple site allowing custom HTML Widgets.">
+	<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body style="margin:0px; padding:0px; height:100dvh;">
+
+    <div id="editWidgetWindow" onclick="editingWidget = null; resetWidgetPlacements();" style="display:none; width:100%; background-color:rgba(20,20,20,0.8); z-index:100; position:absolute; left:0px; transition:all 0.3s ease;">
+        <div id="moveWidgetUp" style="width:30px; height:30px; position:absolute; top:5px; right:5px; background-color:white; border:solid black 2px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; user-select:none;">^</div>
+        <div id="moveWidgetDown" style="width:30px; height:30px; position:absolute; bottom:5px; right:5px; background-color:white; border:solid black 2px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; user-select:none;">V</div>
+        <div id="decreaseWidget" style="width:30px; height:30px; position:absolute; top:5px; left:5px; background-color:white; border:solid black 2px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; user-select:none;">-</div>
+        <div id="increaseWidget" style="width:30px; height:30px; position:absolute; bottom:5px; left:5px; background-color:white; border:solid black 2px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; user-select:none;">+</div>
+        <div id="editWidget" style="width:50px; height:50px; position:absolute; top:calc(50% - 27px); left:calc(50% - 27px); background-color:white; border:solid black 2px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:38px; cursor:pointer; user-select:none;">E</div>
+    </div>
+
+    <div id="addWidgetDiv" style="display:none; width:100%; height:60px; justify-content:center; align-items:center; position:absolute; left:0px;">
+        <div onclick="addWidget();" style="width:40px; min-height:40px; max-height:40px; border:solid black 2px; border-radius:6px; background-color:grey; display:flex; justify-content:center; align-items:center; font-size:42px; cursor:pointer; color:white;">+</div>
+    </div>
+
+	<script src="/qrCode.js"></script>
+
+    <script>
+
+        const editWidgetWindow = document.getElementById("editWidgetWindow");
+        const moveWidgetUp = document.getElementById("moveWidgetUp");
+        const moveWidgetDown = document.getElementById("moveWidgetDown");
+        const decreaseWidget = document.getElementById("decreaseWidget");
+        const increaseWidget = document.getElementById("increaseWidget");
+        const editWidget = document.getElementById("editWidget");
+        
+        const addWidgetDiv = document.getElementById("addWidgetDiv");
+		const DB_NAME = "Widgets_DB"
+        const STORE = "WidgetsStore";
+		
+        let widgets = [{"html":"<img src=\"https://www.skyweaver.net/images/media/wallpapers/wallpaper1.jpg\" style=\"width:100%; height:100%; object-fit:cover;\"></img>\n\n<div style=\"width:calc(100% - 10px); height:calc(100% - 12px); border-bottom:solid black 2px; display:flex; flex-direction:column; gap:5px; padding:5px; position:absolute;\">\n    <div style=\"width:100%; min-height:40px; display:flex; gap:5px;\">\n        <div id=\"prevDate\" style=\"min-width:36px; height:36px; border:solid black 2px; border-radius:6px; background-color:rgba(255,255,255,0.7); display:flex; justify-content:center; align-items:center; text-align:center; font-size:24px; cursor:pointer;\">&lt;</div>\n        <div id=\"dateTitle\" style=\"width:calc(100% - 4px); height:36px; border:solid black 2px; border-radius:6px; background-color:rgba(255,255,255,0.7); display:flex; justify-content:center; align-items:center; text-align:center; font-size:24px;\"></div>\n        <div id=\"nextDate\" style=\"min-width:36px; height:36px; border:solid black 2px; border-radius:6px; background-color:rgba(255,255,255,0.7); display:flex; justify-content:center; align-items:center; text-align:center; font-size:24px; cursor:pointer;\">&gt;</div>\n    </div>\n    <textarea id=\"diary\" style=\"width:calc(100% - 14px); height:calc(100% - 10px); padding:5px; border:solid black 2px; border-radius:6px; background-color:rgba(255,255,255,0.7); resize:none;\"></textarea>\n</div>\n\n\n\n\n\n\n<js>\n    const days = [\"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\"];\n    const dateEndings = [\"st\", \"nd\", \"rd\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"st\", \"nd\", \"rd\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"st\"];\n    const months = [\"January\", \"February\", \"March\", \"April\", \"May\", \"June\", \"July\", \"August\", \"September\", \"October\", \"November\", \"December\"];\n    const date = new Date();\n    const dayOfWeek = days[date.getDay()];\n    const dayOfMonth = date.getDate();\n    const month = date.getMonth();\n    const year = date.getFullYear();\n    const fullDate = `${dayOfWeek} ${dayOfMonth}${dateEndings[dayOfMonth-1]} ${months[month]} ${year}`;\n\n    const dateTitle = document.getElementById(\"dateTitle\");\n    const prevDate = document.getElementById(\"prevDate\");\n    const diary = document.getElementById(\"diary\");\n    const nextDate = document.getElementById(\"nextDate\");\n\n    if (!(\"entries\" in widgets[index])) widgets[index][\"entries\"] = {};\n    if (!(fullDate in widgets[index].entries)) widgets[index].entries[fullDate] = \"\";\n    \n    const allEntries = Object.keys(widgets[index].entries);\n    let entry = Object.keys(widgets[index].entries).length - 1;\n\n    function showEntry() {\n        dateTitle.innerHTML = allEntries[entry];\n        diary.value = widgets[index].entries[allEntries[entry]];\n\n        prevDate.style.display = (entry > 0) ? \"flex\": \"none\";\n        nextDate.style.display = (entry < (allEntries.length - 1)) ? \"flex\": \"none\";\n    }\n\n    showEntry();\n\n    prevDate.onclick = function() {entry -= 1; showEntry();};\n\n    nextDate.onclick = function() {entry += 1; showEntry();}\n\n    diary.oninput = function() {\n        widgets[index].entries[allEntries[entry]] = diary.value;\n        saveWidgets();\n    }\n    \n</js>","size":10}];
+
+        let editingWidget = null;
+        let widgetIdTracker = 0;
+
+        
+
+		loadWidgets();
+
+
+
+        
+        function placeInitialWidgets() {
+            let heightAbove = 0;
+            for (let i=0; i<widgets.length; i++) {
+                placeWidget(i, heightAbove);
+                heightAbove += widgets[i].size;
+            }
+        }
+
+        function placeWidget(i, heightAbove) {
+            const {html , size} = widgets[i];
+            const widget = document.createElement("div");
+            const id = widgetIdTracker;
+            widget.id = `Widget_${id}`;
+            widgets[i]["id"] = `Widget_${id}`;
+            widget.innerHTML = html.replace(/<js[\s\S]*?>[\s\S]*?<\/js>/gi, '');
+			const scripts = html.match(/<js[\s\S]*?>([\s\S]*?)<\/js>/gi);
+			if (scripts) {
+				for (let j=0; j<scripts.length; j++) {
+					requestAnimationFrame(() => {
+						const code = scripts[j].replace(/<js[\s\S]*?>|<\/js>/gi, '');
+						const fn = new Function("index", code);
+						fn(i)
+					});
+
+				}
+			};
+            widget.style.cssText = `position:absolute; top:${heightAbove*10}%; width:100%; min-height:${size*10}dvh; height:${size*10}dvh; max-height:${size*10}dvh; display:flex; justify-content:center; align-items:center; transition:all 0.3s ease; user-select:none; touch-action:manipulation;`;
+            document.body.appendChild(widget);
+
+            let holdTimer = null;
+            function onHoldComplete() {
+                editingWidget = (editingWidget == `Widget_${id}`) ? null : `Widget_${id}`;
+                resetWidgetPlacements();
+                holdTimer = null;
+            }
+            function startHold(e) {
+                if (holdTimer !== null) return;
+                holdTimer = setTimeout(onHoldComplete, 500);
+            }
+            function cancelHold() {
+                if (holdTimer !== null) {
+                    clearTimeout(holdTimer);
+                    holdTimer = null;
+                }
+            }
+            widget.addEventListener('mousedown', startHold);
+            widget.addEventListener('touchstart', startHold);
+            widget.addEventListener('mouseup',   cancelHold);
+            widget.addEventListener('mouseleave', cancelHold);
+            widget.addEventListener('touchend',   cancelHold);
+            widget.addEventListener('touchcancel', cancelHold);
+
+            widgetIdTracker += 1;                
+        }
+
+        function resetWidgetPlacements() {
+			saveWidgets();
+            let heightAbove = 0;
+            for (let i=0; i<widgets.length; i++) {
+                const {html , size , id} = widgets[i];
+                const widget = document.getElementById(id);
+                widget.style.top = `${heightAbove*10}%`;
+                widget.style.minHeight = `${size*10}dvh`;
+                widget.style.height = `${size*10}dvh`;
+                widget.style.maxHeight = `${size*10}dvh`;
+                if (editingWidget == id) {
+                    editWidgetWindow.style.display = "block";
+                    editWidgetWindow.style.top = widget.style.top; 
+                    editWidgetWindow.style.height = widget.style.height;
+                    
+                    moveWidgetUp.style.display = (i==0) ? "none" : "flex";
+                    moveWidgetDown.style.display = (i==(widgets.length - 1)) ? "none" : "flex";
+                    decreaseWidget.style.display = (size==1) ? "none" : "flex";
+                    increaseWidget.style.display = (size==10) ? "none" : "flex";
+                    
+                    moveWidgetUp.onclick = function(e) {moveWidget(i, -1); e.stopPropagation();};
+                    moveWidgetDown.onclick = function(e) {moveWidget(i, 1); e.stopPropagation();};
+                    decreaseWidget.onclick = function(e) {widgets[i].size -= 1; resetWidgetPlacements(); e.stopPropagation();};
+                    increaseWidget.onclick = function(e) {widgets[i].size += 1; resetWidgetPlacements(); e.stopPropagation();};
+
+                    editWidget.onclick = function(e) {
+                        widget.innerHTML = "";
+                        editingWidget = null;
+                        let editor = document.createElement("textarea");
+						editor.wrap = "off";
+                        editor.style.cssText = `width:calc(100% - 20px); height:calc(100% - 20px); border:0px; padding:5px; border:solid black 5px; resize:none; background-color:rgba(0,0,0,0.9); color:white; scrollbar-color:white rgba(0,0,0,0);`;
+                        editor.value = widgets[i].html;
+						editor.onmousedown = function(e) {e.stopPropagation();};
+                        widget.appendChild(editor);
+						editor.addEventListener('keydown', function(e) {
+							if (e.key === 'Tab') {
+								e.preventDefault();
+								const start = this.selectionStart;
+								const end = this.selectionEnd;
+								this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+								this.selectionStart = this.selectionEnd = start + 4;
+							}
+						});
+                        let saveButton = document.createElement("div");
+                        saveButton.style.cssText = `width:60px; height:30px; position:absolute; bottom:8px; right:8px; background-color:white; border:solid black 2px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; user-select:none;`;
+                        saveButton.innerHTML = "Save";
+                        saveButton.onclick = function() {
+							if (editor.value == "") {
+								widget.remove();
+								widgets.splice(i, 1);
+								resetWidgetPlacements();
+							} else {
+								widgets[i].html = editor.value;
+								widget.innerHTML = editor.value.replace(/<js[\s\S]*?>[\s\S]*?<\/js>/gi, '');
+								const scripts = editor.value.match(/<js[\s\S]*?>([\s\S]*?)<\/js>/gi);
+								if (scripts) {
+									for (let j=0; j<scripts.length; j++) {
+										requestAnimationFrame(() => {
+											const code = scripts[j].replace(/<js[\s\S]*?>|<\/js>/gi, '');
+											const fn = new Function("index", code);
+											fn(i)
+										});
+									}
+								};
+								
+							}
+							saveWidgets();
+                            
+                        };
+                        widget.appendChild(saveButton);
+                    };
+                }
+                heightAbove += size;
+            }
+            if (editingWidget == null) {
+                editWidgetWindow.style.display = "none";
+                addWidgetDiv.style.display = "none";
+            } else {
+                addWidgetDiv.style.display = "flex";
+                addWidgetDiv.style.top = `${heightAbove*10}dvh`;
+            }
+        }
+
+        function moveWidget(pos, dir) {
+            const [item] = widgets.splice(pos, 1);
+            widgets.splice(pos + dir, 0, item);
+            resetWidgetPlacements();
+        }
+
+        function addWidget() {
+            widgets.push({html:"<div style=\"width:100%; height:calc(100% - 2px); border-bottom:solid black 2px; background-color:rgb(200,200,200)\">\n\n</div>" , size:1});
+            placeWidget(widgets.length - 1);
+            resetWidgetPlacements();
+        }
+		
+		
+		
+		
+		function uploadWidgets() {
+			const input = document.createElement("input");
+			input.type = "file";
+			input.accept = "application/json";
+			input.style.display = "none";
+			input.onchange = function (event) {
+				const file = event.target.files[0];
+				if (!file) return;
+				const reader = new FileReader();
+				reader.onload = function (e) {
+					try {
+						for (let j=0; j<widgets.length; j++) {
+							document.getElementById(widgets[j].id).remove();
+						}
+						const data = JSON.parse(e.target.result);
+						if (data) widgets = data;
+						editingWidget = null;
+						widgetIdTracker = 0;
+						placeInitialWidgets();
+					} catch (err) {
+						alert("Invalid JSON file.");
+						console.error(err);
+					}
+				};
+				reader.readAsText(file);
+			};
+			input.click();
+		}	
+		
+		
+		
+		function downloadWidgets() {
+			const json = JSON.stringify(widgets, null, 2);
+			const blob = new Blob([json], { type: "application/json" });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			let fileName = prompt("Please enter the name of the file or leave blank for default.");
+			a.download = `${(fileName != "") ? fileName : "WidgetSaveFile"}.json`;
+			a.click();
+			URL.revokeObjectURL(url);
+    
+		}
+		
+
+        function saveWidgets() {
+            const r = indexedDB.open(DB_NAME, 1);
+            r.onupgradeneeded = () => r.result.createObjectStore(STORE);
+            r.onsuccess = () => {
+                const tx = r.result.transaction(STORE, "readwrite");
+                tx.objectStore(STORE).put(widgets, "widgets");
+                console.log("Saved to Local Storage.");
+            };
+        }
+
+        function loadWidgets() {
+            const r = indexedDB.open(DB_NAME, 1);
+            r.onupgradeneeded = () => r.result.createObjectStore(STORE);
+            r.onsuccess = () => {
+                const tx = r.result.transaction(STORE, "readonly");
+                tx.objectStore(STORE).get("widgets").onsuccess = e => {
+					if (e.target.result !== undefined) widgets = e.target.result;
+					console.log("Loaded from Local Storage.");
+					placeInitialWidgets();
+                };
+            };
+        }
+
+        function resetWidgets() {
+            indexedDB.deleteDatabase(DB_NAME);
+        }
+
+
+
+        
+    </script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(function (registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    }, function (err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+
+</body>
+</html>
