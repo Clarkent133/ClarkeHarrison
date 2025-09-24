@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <script>
+
+        const cards = [
+            {sv:"Ac" , name:"" , ac1:"1attack", ac2:"2block", abil:["1c", "Text"] , img:"" , type:"CHARACTER"},
+            {sv:"2c" , name:"" , ac1:"3draw", ac2:"4heal", abil:["2h", "3s", "Text"] , img:"" , type:"ITEM"},
+            {sv:"3c" , name:"" , ac1:"5speed", ac2:"", abil:["4d", "Text"] , img:"" , type:"ITEM"},
+            {sv:"4c" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"5c" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"6c" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"7c" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"8c" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"9c" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"10c" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"Jc" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
+            {sv:"Qc" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
+            {sv:"Kc" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
+            {sv:"Ah" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"CHARACTER"},
+            {sv:"2h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"3h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"4h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"5h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"6h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"7h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"8h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"9h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"10h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"Jh" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
+            {sv:"Qh" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
+            {sv:"Kh" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
+            {sv:"As" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"CHARACTER"},
+            {sv:"2s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"3s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"4s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"5s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"6s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"7s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"8s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"9s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"10s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"Js" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
+            {sv:"Qs" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
+            {sv:"Ks" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
+            {sv:"Ad" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"CHARACTER"},
+            {sv:"2d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"3d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"4d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"5d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"6d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"7d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"8d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"9d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"10d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
+            {sv:"Jd" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
+            {sv:"Qd" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
+            {sv:"Kd" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
+            {sv:"Jo" , name:"Character DC Tracker", img:"" , type:"JOKER"},
+            {sv:"Jo" , name:"Turn Guide", img:"" , type:"JOKER"},
+            {sv:"Jo" , name:"Character DC Tracker", img:"" , type:"JOKER"},
+            {sv:"Jo" , name:"Turn Guide", img:"" , type:"JOKER"}
+        ]
+
+        const cnv = document.getElementById("canvas");
+        const ctx = cnv.getContext("2d");
+        const ratio = window.devicePixelRatio;
+        const unicodes = {"attack":"⚔", "block":"🛡", "c":"♣" , "d":"♦" , "draw":"➕" , "h":"♥" , "heal":"✨" , "o":"o" , "s":"♠" , "speed":"⚡"};
+        cnv.width = 250 * ratio;
+        cnv.height = 350 * ratio;
+        cnv.style.width = "250px";
+        cnv.style.height = "350px";
+        ctx.scale(ratio, ratio);
+        ctx.imageSmoothingEnabled = false;
+
+        const across = 3;
+        const down = 3;
+        let loadedIntoCache = 0;
+        let cache = [];
+
+
+        document.fonts.load("16px 'Noto Sans'").then(() => {
+            return document.fonts.ready;
+        }).then(() => {
+            drawCard(0)
+        });
+
+
+        
+
+
+        
+
+        function drawCard(i) {
+            const {sv , name , type} = cards[i];
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, cnv.width, cnv.height);
+            ctx.fillStyle = "white";
+            ctx.fillRect(8, 38, 234, 304);
+            
+
+            drawLines([[32,10], [238,10], [242,14], [242,24], [238,28], [32,28]], 4, "#828282", "#c7c6c5");
+            drawText(name, 56, 13, 182, 14, 16);
+        
+
+            if (sv != "Jo") {
+                drawCircle("black", 44, 44, 18, 0, 360);
+                const { ac1 , ac2 , abil } = cards[i];
+                drawCircle("black", 66, 44, 14, 0, 360);
+                drawCircle("white", 66, 44, 12, 0, 360);
+                if (ac1 != "") drawText(ac1[0] + unicodes[ac1.substring(1)], 55, 33, 24, 24);
+                
+                drawCircle("black", 44, 66, 14, 0, 360);
+                drawCircle("white", 44, 66, 12, 0, 360);
+                if (ac2 != "") drawText(ac2[0] + unicodes[ac2.substring(1)], 33, 55, 24, 24);
+                
+                if (abil.length > 0) {
+                    for (let j=0; j<abil.length-1; j++) {
+                        drawLines([ [20 + (j*20),290] , [34 + (j*20),290] , [34 + (j*20),322] , [20 + (j*20),322] , [20 + (j*20),290] ], 2, "black", "#c7c6c5");
+                        drawText(abil[j][0], 20 + (j*20), 291, 14, 16, 16);
+                        drawText(unicodes[abil[j][1]], 20 + (j*20), 306, 14, 16, 10);
+                    }
+                    const abilStart = 20 + (20 * (abil.length-1));
+                    drawLines([ [abilStart,290] , [230,290] , [230,322] , [abilStart,322] , [abilStart,290] ], 2, "black", "#c7c6c5");
+                    drawText(abil[abil.length-1], abilStart, 290, 230-abilStart, 32);
+                }
+            } else if (name == "Character DC Tracker") {
+                const space = [20, 56, 210, 250];
+                for (let j=0; j<4; j++) {
+                    drawLines([ [65,91+(j*60)] , [185,91+(j*60)] ], 16, "black");
+                    drawLines([ [(j%2==0) ? 185 : 65,91+(j*60)] , [(j%2==0) ? 185 : 65,91+(j*60)+40] ], 16, "black");
+                    for (let x=0; x<3; x++) {
+                        const txt = (j%2 == 0) ? `${12-x-(j*3)}` : `${10+x-(j*3)}`;
+                        drawCircle("black", 65 + (x*60), 91 + (j*60), 25, 0, 360);
+                        drawCircle("white", 65 + (x*60), 91 + (j*60), 23, 0, 360);
+                        drawText(txt, 40 + (x*60), 66 + (j*60), 50, 50, 22);
+                    }
+                }
+                drawLines([ [20,306] , [230,306] , [230,326] , [20,326] , [20,306] ], 2, "black", "#c7c6c5");
+                drawText("Out of the Game", 20, 306, 210, 20, 16);
+            } else {
+                // IF TURN GUIDE
+                const basicActions = {"speed":"When your Turn ends take another.\n(max 2 extra turns in a row)", "heal":"Remove up to X Total DC from Cards in your Field.", "draw":"Draw the top X Cards from the Deck into your Hand.", "block":"This Card remains in your Field with X Durability.", "attack":"Target a Player to distribute X DC Counters amongst cards in their Field."};
+                for (let j=0; j<5; j++) {
+                    const actions = Object.keys(basicActions);
+                    drawLines([ [34,302 - (j*32)] , [230,302 - (j*32)] , [230,322 - (j*32)] , [34,322 - (j*32)] ], 2, "black", "#c7c6c5");
+                    drawCircle("black", 34, 312 - (j*32), 14, 0, 360);
+                    drawCircle("white", 34, 312 - (j*32), 12, 0, 360);
+                    drawText(`X` + unicodes[actions[j]] , 23, 301 - (j*32), 24, 24, 10);
+                    drawText(basicActions[actions[j]], 48, 302 - (j*32), 182, 20, 8);
+                }
+                drawLines([ [20,42] , [230,42] , [230,166] , [20,166] , [20,42] ], 2, "black", "#c7c6c5");
+                drawText("On your Turn\n\nPlay : Place a card from your hand into your field or Draw 2 Cards and end your turn.\n\nActions : Resolve the top-left Actions, then, if it has a Custom Action at the bottom, resolve it if the suit requirements are met.\n\nResolve : Discard cards in your field with no Durability or DC equal or greater than it, then your turn ends.", 20, 44, 210, 122, 8);
+            }
+
+            drawCircle("black", 32, 32, 24, 0, 360);
+            drawCircle("white", 32, 32, 22, 0, 360);
+            drawText(sv.slice(0, -1) + unicodes[sv.slice(-1)], 12, 10, 44, 44, 18);
+
+            drawLines([ [8,342] , [20,330] , [230,330] , [242,342] ], 2, "black", "#c7c6c5");
+            drawText(type, 0, 330, 250, 12, 10);
+
+            requestAnimationFrame(() => {
+                cache.push("CTX AS IMAGE");
+                if (cache.length < cards.length) {
+                    drawCard(i+1);
+                } else {
+
+                    console.log("All images loaded into cache")
+                    // ALL IMAGES LOADED
+                    
+                }
+            });
+        }
+
+        function drawText(text, x, y, w, h, fontSize = 12, fontFamily = null) {
+            ctx.font = fontFamily || `${fontSize}px "Noto Sans", "Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", "EmojiSymbols", sans-serif`;
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "black";
+
+            const paragraphs = text.split("\n");
+            let lines = [];
+
+            paragraphs.forEach(paragraph => {
+                const words = paragraph.split(" ");
+                let line = "";
+
+                for (let i = 0; i < words.length; i++) {
+                    const testLine = line + words[i] + " ";
+                    const testWidth = ctx.measureText(testLine).width;
+                    if (testWidth > w && i > 0) {
+                        lines.push(line.trim());
+                        line = words[i] + " ";
+                    } else {
+                        line = testLine;
+                    }
+                }
+                lines.push(line.trim());
+            });
+
+            const lineHeight = fontSize * 1.2;
+            const textBlockHeight = lines.length * lineHeight;
+            let startY = y + h / 2 - textBlockHeight / 2 + lineHeight / 2;
+
+            lines.forEach(line => {
+                const lineWidth = ctx.measureText(line).width;
+                const lineX = x + w / 2 - lineWidth / 2;
+                ctx.fillText(line, lineX, startY);
+                startY += lineHeight;
+            });
+        }
+
+
+        function drawLines(coords, width = 10, strokeColour="black", fill = null) {
+            if (coords.length < 2) return;
+            ctx.beginPath();
+            ctx.moveTo(coords[0][0], coords[0][1]);
+            for (let i = 1; i < coords.length; i++) {
+                ctx.lineTo(coords[i][0], coords[i][1]);
+            }
+            ctx.strokeStyle = strokeColour;
+            ctx.lineWidth = width;
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            if (width != 0) ctx.stroke();
+            if (fill) {
+                ctx.closePath();
+                ctx.fillStyle = fill;
+                ctx.fill();
+            }
+        }
+
+        function drawCircle(colour, x, y, radius, startAngle, totalAngle) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, startAngle * Math.PI / 180, totalAngle * Math.PI / 180);
+            ctx.fillStyle = colour;
+            ctx.fill();
+        }
+
+
+
+
+
+		/*
+
+			WHAT YOU NEED
+
+			- One deck of 56 cards (A–K in 4 suits, 4 Jokers).
+			- Remove Jokers and Aces before play; Aces are your Character Cards.
+			- Counters to track Damage Counters (DC).
+			- Optional: combine 2 decks for 3–4 players.
+
+			GAME SETUP
+
+			1. Each player chooses an Ace (Character Card) and places it in their Field.
+			2. Each player also takes a Turn Guide Joker and a DC Tracker Joker.
+			3. Shuffle the remaining cards into a Deck and place face-down in the center.
+			4. Each player draws 3 cards. Choose who goes first.
+
+			ON YOUR TURN
+
+			1. **Play** – Place a card from your hand into your Field.  
+			   (Instead of playing, you may draw 1 card and end your turn.)
+			2. **Resolve Actions** –  
+			   - First, resolve the Basic Actions in the card’s top-left (see Turn Guide Joker).  
+			   - Then, if the card has a Custom Action at the bottom, resolve it if you meet its suit requirement.  
+			     Example: “3♠” means you need at least 3 Spade cards in your Field.  
+			3. **Discard** – After resolving actions, discard the card.  
+			   **Exception:** Cards with the Block Basic Action stay in your Field with durability equal to X.  
+			   Place DC counters on it as it takes damage; if it has DC at least equal to it's durability, discard it.
+			4. **End Turn** – Discard any other cards in your Field that have no durability or have DC ≥ durability.  
+			   Then pass play to the next player.
+
+			DAMAGE COUNTERS (DC)
+
+			- DC are placed on cards in the Field when they take damage.  
+			- If a card leaves the Field, remove all DC from it.  
+			- If your Character Card (Ace) leaves your Field, you are eliminated.
+
+			WINNING
+
+			- Be the last remaining player with your Character Card in play.
+
+		*/
+
+
+
+    </script>
+</body>
+</html>
