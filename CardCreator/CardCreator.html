@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <title>My First Webpage</title>
+    </head>
+
+
+    <body>
+
+        <div id="outputHTML" style="width:100%; height:100dvh;"></div>
+    
+        <script>
+
+const outputHTML = document.getElementById("outputHTML");
+
+// IMG is based on card name .png
+
+const cards = [
+    // Clubs (Power)
+    {suitValue:"AC", name:"CARD NAME", hp:"12", type:"CHARACTER", abilities:[
+        ["T", "Generate 2 Power Points and 1 Agility Point."],
+        ["S", "Untap all Tapped Cards in your Field"],
+        ["S", "Play a Card from your Hand into your Field."],
+        ["S", "Draw the top Card from the Deck into your Hand."],
+        ["S","Target Card in a Field gains 1 DC."]
+    ]},
+    {suitValue:"2C", name:"CARD NAME", hp:"4", type:"ITEM", abilities:[
+        ["P", "P", "P", "T", "Target Item gains 6 DC."],
+        ["T", "Target Item or Ally gains 3 DC."]
+    ]},
+    {suitValue:"3C", name:"CARD NAME", hp:"4", type:"ITEM", abilities:[
+        ["P", "P", "S", "Each Item in Target Field gains 3 DC."],
+        ["T", "Target Item or Ally gains 3 DC."]
+    ]},
+    {suitValue:"4C", name:"CARD NAME", hp:"6", type:"ITEM", abilities:[
+        ["P", "P", "T", "Discard Target Item or Ally with more than 3 DC."],
+        ["T", "Target Item or Ally gains 2 DC."]
+    ]},
+    {suitValue:"5C", name:"CARD NAME", hp:"6", type:"ITEM", abilities:[
+        ["P", "P", "S", "Target Item gains 5 DC."],
+        ["T", "Target Item or Ally gains 2 DC."]
+    ]},
+    {suitValue:"6C", name:"CARD NAME", hp:"8", type:"ITEM", abilities:[
+        ["P", "P", "A", "S", "Each Item and Ally in Target Field gains 2 DC."],
+        ["T", "Target Item or Ally gains 1 DC."]
+    ]},
+    {suitValue:"7C", name:"CARD NAME", hp:"8", type:"ITEM", abilities:[
+        ["P", "T", "Target Item or Ally gains 1 DC. Do this twice."],
+        ["T", "Target Item or Ally gains 1 DC."]
+    ]},
+    {suitValue:"8C", name:"CARD NAME", hp:"4", type:"ITEM", abilities:[
+        ["P", "T", "Until your next Turn, when a Target Item or Ally receives DC, it receives 1 less."],
+        ["S", "Until your next Turn, when a Card Targets your Character, Target this instead."]
+    ]},
+    {suitValue:"9C", name:"CARD NAME", hp:"6", type:"ITEM", abilities:[
+        ["P", "P", "T", "Until your next Turn, If this Card receives DC, it receives 2 less."],
+        ["S", "Until your next Turn, when a Card Targets your Character, Target this instead."]
+    ]},
+    {suitValue:"10C", name:"CARD NAME", hp:"8", type:"ITEM", abilities:[
+        ["P", "P", "W", "S", "Remove up to 4 DC from this Card."],
+        ["S", "Until your next Turn, when a Card Targets your Character, Target this instead."]
+    ]},
+    {suitValue:"JC", name:"CARD NAME", hp:"8", type:"ALLY", abilities:[
+        ["T", "Generate 1 Power Point."],
+        ["T", "Target Card gains 1 DC."]
+    ]},
+    {suitValue:"QC", name:"CARD NAME", hp:"8", type:"ALLY", abilities:[
+        ["T", "Generate 1 Power Point."],
+        ["T", "Target Card gains 1 DC."]
+    ]},
+    {suitValue:"KC", name:"CARD NAME", hp:"6", type:"ALLY", abilities:[
+        ["T", "Generate 2 Power Points."],
+        ["T", "Target Card gains 1 DC."]
+    ]},
+
+    // Hearts (Agility)
+    {suitValue:"AH", name:"CARD NAME", hp:"12", type:"CHARACTER", abilities:[
+        ["T", "Generate 2 Agility Points and 1 Wisdom Point."],
+        ["S", "Untap all Tapped Cards in your Field"],
+        ["S", "Play a Card from your Hand into your Field."],
+        ["S", "Draw the top Card from the Deck into your Hand."],
+        ["S","Target Card in a Field gains 1 DC."]
+    ]},
+    {suitValue:"2H", name:"CARD NAME", hp:"4", type:"ITEM", abilities:[
+        ["A", "A", "S", "Move Target Item from another Field into yours. At the end of your next Turn, move it back."],
+        ["T", "Target Item or Ally gains 3 DC."]
+    ]},
+    {suitValue:"3H", name:"CARD NAME", hp:"4", type:"ITEM", abilities:[
+        ["A", "A", "W", "S", "Move Target Item or Ally from another Field into yours, move it back when this card leaves your Field."],
+        ["T", "Target Item or Ally gains 3 DC."]
+    ]},
+    {suitValue:"4H", name:"CARD NAME", hp:"6", type:"ITEM", abilities:[
+        ["A", "T", "Tap 2 Target Items."],
+        ["T", "Target Item or Ally gains 2 DC."]
+    ]},
+    {suitValue:"5H", name:"CARD NAME", hp:"6", type:"ITEM", abilities:[
+        ["A", "A", "S", "Move Target Card from the Discard Pile into your Hand."],
+        ["T", "Target Item or Ally gains 2 DC."]
+    ]},
+    {suitValue:"6H", name:"CARD NAME", hp:"8", type:"ITEM", abilities:[
+        ["A", "S", "Discard this Card, Return Target Item to the Hand that played it."],
+        ["T", "Target Item or Ally gains 1 DC."]
+    ]},
+    {suitValue:"7H", name:"CARD NAME", hp:"8", type:"ITEM", abilities:[
+        ["A", "A", "S", "Discard this Card, Tap Target Character."],
+        ["T", "Target Item or Ally gains 1 DC."]
+    ]},
+    {suitValue:"8H", name:"CARD NAME", hp:"4", type:"ITEM", abilities:[
+        ["A", "T", "Untap Target Item."],
+        ["T", "Tap Target Item or Ally."]
+    ]},
+    {suitValue:"9H", name:"CARD NAME", hp:"6", type:"ITEM", abilities:[
+        ["A", "A", "T", "Untap Target Ally."],
+        ["T", "Tap Target Item or Ally."]
+    ]},
+    {suitValue:"10H", name:"CARD NAME", hp:"8", type:"ITEM", abilities:[
+        ["A", "A", "S", "Until your next Turn, your Character cannot be Targeted."],
+        ["T", "Tap Target Item or Ally."]
+    ]},
+    {suitValue:"JH", name:"CARD NAME", hp:"8", type:"ALLY", abilities:[
+        ["T", "Generate 1 Agility Point."],
+        ["T", "Target Card gains 1 DC."]
+    ]},
+    {suitValue:"QH", name:"CARD NAME", hp:"8", type:"ALLY", abilities:[
+        ["T", "Generate 1 Agility Point."],
+        ["T", "Target Card gains 1 DC."]
+    ]},
+    {suitValue:"KH", name:"CARD NAME", hp:"6", type:"ALLY", abilities:[
+        ["T", "Generate 2 Agility Points."],
+        ["T", "Target Card gains 1 DC."]
+    ]},
+
+    // Spades (Wisdom)
+    {suitValue:"AS", name:"CARD NAME", hp:"12", type:"CHARACTER", abilities:[
+        ["T", "Generate 2 Wisdom Points and 1 Power Point."],
+        ["S", "Untap all Tapped Cards in your Field"],
+        ["S", "Play a Card from your Hand into your Field."],
+        ["S", "Draw the top Card from the Deck into your Hand."],
+        ["S","Target Card in a Field gains 1 DC."]
+    ]},
+    {suitValue:"2S", name:"CARD NAME", hp:"4", type:"ITEM", abilities:[
+        ["W", "S", "Draw 1 Card."],
+        ["T", "Target Item or Ally gains 3 DC."]
+    ]},
+    {suitValue:"3S", name:"CARD NAME", hp:"4", type:"ITEM", abilities:[
+        ["W", "W", "S", "Draw 3 Cards. Then Discard 2 Cards from your Hand."],
+        ["T", "Target Item or Ally gains 3 DC."]
+    ]},
+    {suitValue:"4S", name:"CARD NAME", hp:"6", type:"ITEM", abilities:[
+        ["W", "W", "A", "S", "Search the Deck, Move a Card into your Hand, then shuffle the Deck."],
+        ["T", "Target Item or Ally gains 2 DC."]
+    ]},
+    {suitValue:"5S", name:"CARD NAME", hp:"6", type:"ITEM", abilities:[
+        ["W", "T", "Secretly look at the top 3 Cards of the Deck, put them back in any order."],
+        ["T", "Target Item or Ally gains 2 DC."]
+    ]},
+    {suitValue:"6S", name:"CARD NAME", hp:"8", type:"ITEM", abilities:[
+        ["W", "P", "Target Player Discards 1 Card from their Hand if able."],
+        ["T", "Target Item or Ally gains 1 DC."]
+    ]},
+    {suitValue:"7S", name:"CARD NAME", hp:"8", type:"ITEM", abilities:[
+        ["W", "W", "S", "Discard this Card, Move 1 random Card from Target Player's Hand into your own."],
+        ["T", "Target Item or Ally gains 1 DC."]
+    ]},
+    {suitValue:"8S", name:"CARD NAME", hp:"4", type:"ITEM", abilities:[
+        ["W", "W", "T", "Remove 2 DC from Target Item or Ally."],
+        ["S", "Move 1 DC from Target Card to another in the same Field."]
+    ]},
+    {suitValue:"9S", name:"CARD NAME", hp:"6", type:"ITEM", abilities:[
+        ["W", "W", "S", "Remove 1 DC from Target Character."],
+        ["S", "Move 1 DC from Target Card to another in the same Field."]
+    ]},
+    {suitValue:"10S", name:"CARD NAME", hp:"8", type:"ITEM", abilities:[
+        ["W", "W", "W", "S", "Discard this Card, remove 3 DC from Target Character."],
+        ["S", "Move 1 DC from Target Card to another in the same Field."]
+    ]},
+    {suitValue:"JS", name:"CARD NAME", hp:"8", type:"ALLY", abilities:[
+        ["T", "Generate 1 Wisdom Point."],
+        ["T", "Target Card gains 1 DC."]
+    ]},
+    {suitValue:"QS", name:"CARD NAME", hp:"8", type:"ALLY", abilities:[
+        ["T", "Generate 1 Wisdom Point."],
+        ["T", "Target Card gains 1 DC."]
+    ]},
+    {suitValue:"KS", name:"CARD NAME", hp:"6", type:"ALLY", abilities:[
+        ["T", "Generate 2 Wisdom Points."],
+        ["T", "Target Card gains 1 DC."]
+    ]},
+
+    // Diamonds (Jack-of-all-Trades)
+    {suitValue:"AD", name:"CARD NAME", hp:"12", type:"CHARACTER", abilities:[
+        ["T", "Generate 1 Power Point, 1 Agility Point and 1 Wisdom Point."],
+        ["S", "Untap all Tapped Cards in your Field"],
+        ["S", "Play a Card from your Hand into your Field."],
+        ["S", "Draw the top Card from the Deck into your Hand."],
+        ["S","Target Card in a Field gains 1 DC."]
+    ]},
+    {suitValue:"2D", name:"CARD NAME", hp:"4", type:"ITEM", abilities:[
+        ["P", "A", "W", "S", "Swap Target Item or Ally with the Top Card of the Deck."],
+        ["T", "Target Item or Ally gains 3 DC."]
+    ]},
+    {suitValue:"3D", name:"CARD NAME", hp:"4", type:"ITEM", abilities:[
+        ["P", "P", "A", "S", "Discard this Card, Tap Target Character."],
+        ["T", "Target Item or Ally gains 3 DC."]
+    ]},
+    {suitValue:"4D", name:"CARD NAME", hp:"6", type:"ITEM", abilities:[
+        ["P", "A", "T", "Swap this Item with a random Item in any opponent’s Field."],
+        ["T", "Target Item or Ally gains 2 DC."]
+    ]},
+    {suitValue:"5D", name:"CARD NAME", hp:"6", type:"ITEM", abilities:[
+        ["P", "W", "T", "Target Item gains DC equal to the number of Items in it's Field."],
+        ["T", "Target Item or Ally gains 2 DC."]
+    ]},
+    {suitValue:"6D", name:"CARD NAME", hp:"8", type:"ITEM", abilities:[
+        ["A", "W", "W", "S", "Move this Card into Target Field, then each Card in that Field gains 2 DC."],
+        ["T", "Target Item or Ally gains 1 DC."]
+    ]},
+    {suitValue:"7D", name:"CARD NAME", hp:"8", type:"ITEM", abilities:[
+        ["P", "P", "W", "S", "Each Item gains 1 DC."],
+        ["T", "Target Item or Ally gains 1 DC."]
+    ]},
+    {suitValue:"8D", name:"CARD NAME", hp:"4", type:"ITEM", abilities:[
+        ["P", "S", "Move the DC from Target Item or Ally to another."],
+        ["S", "Until your next Turn, when a Card Targets your Character, Target this instead."]
+    ]},
+    {suitValue:"9D", name:"CARD NAME", hp:"6", type:"ITEM", abilities:[
+        ["A", "W", "T", "Untap 2 Target Items or Allies. They then gain 1 DC."],
+        ["T", "Tap Target Item or Ally."]
+    ]},
+    {suitValue:"10D", name:"CARD NAME", hp:"8", type:"ITEM", abilities:[
+        ["W", "W", "T", "Look at the top 2 Cards of the Deck, Discard 1 and leave the other on top."],
+        ["S", "Move 1 DC from Target Card to another in the same Field."]
+    ]},
+    {suitValue:"JD", name:"CARD NAME", hp:"8", type:"ALLY", abilities:[
+        ["P", "T", "Generate 3 Power Points."],
+        ["T", "Target Card gains 1 DC."]
+    ]},
+    {suitValue:"QD", name:"CARD NAME", hp:"8", type:"ALLY", abilities:[
+        ["A", "T", "Generate 3 Agility Points."],
+        ["T", "Target Card gains 1 DC."]
+    ]},
+    {suitValue:"KD", name:"CARD NAME", hp:"6", type:"ALLY", abilities:[
+        ["W", "T", "Generate 3 Wisdom Points."],
+        ["T", "Target Card gains 1 DC."]
+    ]}
+];
+
+let cardImages = [];
+
+
+
+
+
+
+
+
+
+outputHTML.innerHTML = `
+    <canvas id="cardCreatorCanvas" width="750" height="1050" style="min-width:500px; min-height:700px; max-width:500px; max-height:700px; display:none;"></canvas>
+    <div style="font-size:42px; width:100%; height:100%; display:flex; justify-content:center; align-items:center; text-align:center;">Generating Cards</div>
+`;
+
+const cnv = document.getElementById("cardCreatorCanvas");
+const ctx = cnv.getContext("2d");
+
+saveAllCards(function() {
+    ctx.clearRect(0, 0, cnv.width, cnv.height);
+    downloadCards(13, 4);
+    outputHTML.innerHTML = '';
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function drawCard(id) {
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, cnv.width, cnv.height);
+    ctx.fillStyle = "white";
+    ctx.fillRect(15, 15, cnv.width-30, cnv.height-30);
+
+    const card = cards[id];
+    
+    // DRAW CARD
+    drawLines([ [0,40] , [600,40] , [540,100] , [0,100] ]); // TITLE
+    drawLines([ [750,40] , [640,40] , [580,100] , [750,100] ]); // HP
+    for (let i=0; i<card.abilities.length; i++) {
+        drawLines([ [0,940-(130*i)] , [700,940-(130*i)] , [700,840-(130*i)] , [0,840-(130*i)], [110,840-(130*i)] , [110,940-(130*i)] ]);
+        const quant = card.abilities[i].length-1;
+        for (let j=0; j<quant; j++) {
+            let xPos = 48;
+            let yPos = 48;
+            if (j==0 || j==2) xPos = (quant == 1 || (quant == 3 && j==2)) ? 27 : 6;
+            if (j==0 || j==1) yPos = (quant == 1 || quant == 2) ? 27 : 6;
+            xPos += 15;
+            yPos += 845-(130*i);
+            drawLines([ [xPos,yPos] , [xPos+36,yPos] , [xPos+36,yPos+36] , [xPos,yPos+36] , [xPos,yPos] ] , 2);
+        }
+    }
+    drawLines([ [0,970] , [600,970] , [560,1010] , [0,1010] ]); // TYPE
+    drawLines([ [750,970] , [640,970] , [600,1010] , [750,1010] ]); // SV
+
+    // WRITE CARD
+    drawText(card.name, 15, 45, 545, 50, 42) // TITLE
+    drawText(card.hp, 620, 45, 115, 50, 42) // HP
+    for (let i=0; i<card.abilities.length; i++) {
+        const quant = card.abilities[i].length-1;
+        for (let j=0; j<quant; j++) {
+            let xPos = 48;
+            let yPos = 48;
+            if (j==0 || j==2) xPos = (quant == 1 || (quant == 3 && j==2)) ? 27 : 6;
+            if (j==0 || j==1) yPos = (quant == 1 || quant == 2) ? 27 : 6;
+            xPos += 16;
+            yPos += 846-(130*i);
+            drawText(card.abilities[i][j], xPos, yPos+2, 34, 34, 32) // COST
+        }
+        drawText(card.abilities[i][quant], 115, 845-(130*i), 580, 90, 24) // ABILITY
+    }
+    drawText(card.type, 15, 975, 555, 30, 24) // TYPE
+    drawText(card.suitValue, 630, 975, 105, 30, 24) // SV
+}
+
+
+
+
+
+
+function saveAllCards(callback) {
+    function saveCard(i) {
+        drawCard(i);
+        requestAnimationFrame(() => {
+            let img = new Image();
+            img.src = cnv.toDataURL("image/png"); 
+            img.onload = function() {
+                cardImages.push(img);
+                if (i<(cards.length-1)) {
+                    saveCard(i+1);
+                } else {
+                    callback();
+                };
+            };
+        });
+    };
+    saveCard(0);
+};
+
+
+
+
+
+
+
+
+
+
+
+
+function downloadCards(across, vertical) {
+    if (!cardImages.length || across <= 0 || vertical <= 0) return;
+
+    const imgWidth = cardImages[0].width;
+    const imgHeight = cardImages[0].height;
+    const gridSize = across * vertical;
+
+    for (let i = 0, group = 1; i < cardImages.length; i += gridSize, group++) {
+        const newCnv = document.createElement("canvas");
+        newCnv.width = imgWidth * across;
+        newCnv.height = imgHeight * vertical;
+        const newCtx = newCnv.getContext("2d");
+        for (let j = 0; j < gridSize && i + j < cardImages.length; j++) {
+            const row = Math.floor(j / across);
+            const col = j % across;
+            newCtx.drawImage(cardImages[i + j], col * imgWidth, row * imgHeight);
+        };
+        const link = document.createElement("a");
+        link.download = `group_${group}.png`;
+        link.href = newCnv.toDataURL("image/png");
+        link.click();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+function drawLines(coords, width=10) {
+    if (coords.length < 2) return;
+    ctx.beginPath();
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = width;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.moveTo(coords[0][0], coords[0][1]);
+    for (let i = 1; i < coords.length; i++) {
+        ctx.lineTo(coords[i][0], coords[i][1]);
+    }
+    ctx.stroke();
+}
+
+function drawText(txt, x, y, w, h, fontSize) {
+    ctx.font = `${fontSize}px sans-serif`;
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "black";
+    const words = txt.split(' ');
+    const lines = [];
+    let line = "";
+    for (let n = 0; n < words.length; n++) {
+        let testLine = line + words[n] + " ";
+        let testWidth = ctx.measureText(testLine).width;
+        if (testWidth > w && n > 0) {
+            lines.push(line.trim());
+            line = words[n] + " ";
+        } else {
+            line = testLine;
+        }
+    }
+    lines.push(line.trim());
+    const lineHeight = fontSize * 1.2;
+    const textHeight = lines.length * lineHeight;
+    let startY = y + h / 2 - textHeight / 2 + lineHeight / 2;
+
+    for (let i = 0; i < lines.length; i++) {
+        const lineWidth = ctx.measureText(lines[i]).width;
+        const lineX = x + (w - lineWidth) / 2;
+        const lineY = startY + i * lineHeight;
+        ctx.fillText(lines[i], lineX, lineY);
+    }
+}
+
+
+
+
+        </script>
+    </body>
+
+</html>
