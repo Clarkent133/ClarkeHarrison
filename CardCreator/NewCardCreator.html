@@ -14,64 +14,81 @@
 
     <script>
 
-        const cards = [
-            {sv:"Ac" , name:"" , ac1:"1attack", ac2:"2block", abil:["1c", "Text"] , img:"" , type:"CHARACTER"},
-            {sv:"2c" , name:"" , ac1:"3draw", ac2:"4heal", abil:["2h", "3s", "Text"] , img:"" , type:"ITEM"},
-            {sv:"3c" , name:"" , ac1:"5speed", ac2:"", abil:["4d", "Text"] , img:"" , type:"ITEM"},
-            {sv:"4c" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"5c" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"6c" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"7c" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"8c" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"9c" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"10c" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"Jc" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
-            {sv:"Qc" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
-            {sv:"Kc" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
-            {sv:"Ah" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"CHARACTER"},
-            {sv:"2h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"3h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"4h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"5h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"6h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"7h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"8h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"9h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"10h" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"Jh" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
-            {sv:"Qh" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
-            {sv:"Kh" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
-            {sv:"As" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"CHARACTER"},
-            {sv:"2s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"3s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"4s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"5s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"6s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"7s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"8s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"9s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"10s" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"Js" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
-            {sv:"Qs" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
-            {sv:"Ks" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
-            {sv:"Ad" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"CHARACTER"},
-            {sv:"2d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"3d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"4d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"5d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"6d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"7d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"8d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"9d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"10d" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ITEM"},
-            {sv:"Jd" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
-            {sv:"Qd" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
-            {sv:"Kd" , name:"" , ac1:"", ac2:"", abil:[] , img:"" , type:"ALLY"},
-            {sv:"Jo" , name:"Character DC Tracker", img:"" , type:"JOKER"},
-            {sv:"Jo" , name:"Turn Guide", img:"" , type:"JOKER"},
-            {sv:"Jo" , name:"Character DC Tracker", img:"" , type:"JOKER"},
-            {sv:"Jo" , name:"Turn Guide", img:"" , type:"JOKER"}
-        ]
+		const cards = [
+			// === CLUBS (Attack / Damage) ===
+			{sv:"Ac", name:"", ac1:"6block", ac2:"6block", abil:["2c","2 attack"], img:"", type:"CHARACTER"},
+			{sv:"2c", name:"", ac1:"1attack", ac2:"1block", abil:[], img:"", type:"ITEM"},
+			{sv:"3c", name:"", ac1:"2attack", ac2:"", abil:[], img:"", type:"ITEM"},
+			{sv:"4c", name:"", ac1:"2attack", ac2:"1block", abil:[], img:"", type:"ITEM"},
+			{sv:"5c", name:"", ac1:"3attack", ac2:"", abil:[], img:"", type:"ITEM"},
+			{sv:"6c", name:"", ac1:"2attack", ac2:"1block", abil:[], img:"", type:"ITEM"},
+			{sv:"7c", name:"", ac1:"3attack", ac2:"1block", abil:[], img:"", type:"ITEM"},
+			{sv:"8c", name:"", ac1:"3attack", ac2:"1block", abil:["2c","1 ⚔"], img:"", type:"ITEM"},
+			{sv:"9c", name:"", ac1:"3attack", ac2:"1block", abil:["2c","Opponent discards 1"], img:"", type:"ITEM"},
+			{sv:"10c", name:"", ac1:"3attack", ac2:"2block", abil:["2c","2d","2 ⚔"], img:"", type:"ITEM"},
+			{sv:"Jc", name:"", ac1:"4attack", ac2:"2block", abil:["2c","Draw 1 then deal 1 ⚔"], img:"", type:"ALLY"},
+			{sv:"Qc", name:"", ac1:"4attack", ac2:"3block", abil:["2c","Gain ⚔ equal to ♣ in your Field"], img:"", type:"ALLY"},
+			{sv:"Kc", name:"", ac1:"4attack", ac2:"3block", abil:["2c","2h","Destroy any Item Card"], img:"", type:"ALLY"},
+
+			// === HEARTS (Draw / Speed) ===
+			{sv:"Ah", name:"", ac1:"6block", ac2:"6block", abil:["2h","1 ➕"], img:"", type:"CHARACTER"},
+			{sv:"2h", name:"", ac1:"1draw", ac2:"1block", abil:[], img:"", type:"ITEM"},
+			{sv:"3h", name:"", ac1:"1draw", ac2:"1speed", abil:[], img:"", type:"ITEM"},
+			{sv:"4h", name:"", ac1:"2draw", ac2:"", abil:[], img:"", type:"ITEM"},
+			{sv:"5h", name:"", ac1:"1speed", ac2:"1block", abil:[], img:"", type:"ITEM"},
+			{sv:"6h", name:"", ac1:"2speed", ac2:"", abil:[], img:"", type:"ITEM"},
+			{sv:"7h", name:"", ac1:"2draw", ac2:"1block", abil:[], img:"", type:"ITEM"},
+			{sv:"8h", name:"", ac1:"2draw", ac2:"1block", abil:["2h","1 ➕"], img:"", type:"ITEM"},
+			{sv:"9h", name:"", ac1:"1draw", ac2:"2block", abil:["2h","Gain 1 ⚡"], img:"", type:"ITEM"},
+			{sv:"10h", name:"", ac1:"2draw", ac2:"2block", abil:["2h","2s","2 ➕"], img:"", type:"ITEM"},
+			{sv:"Jh", name:"", ac1:"2draw", ac2:"2block", abil:["2h","Draw 2 then discard 1"], img:"", type:"ALLY"},
+			{sv:"Qh", name:"", ac1:"2speed", ac2:"2block", abil:["2h","Look at top 2 cards of Deck, keep 1"], img:"", type:"ALLY"},
+			{sv:"Kh", name:"", ac1:"3draw", ac2:"3block", abil:["2h","2c","1 ⚡"], img:"", type:"ALLY"},
+
+			// === SPADES (Heal) ===
+			{sv:"As", name:"", ac1:"6block", ac2:"6block", abil:["2s","2 ✨"], img:"", type:"CHARACTER"},
+			{sv:"2s", name:"", ac1:"1heal", ac2:"1block", abil:[], img:"", type:"ITEM"},
+			{sv:"3s", name:"", ac1:"1heal", ac2:"2block", abil:[], img:"", type:"ITEM"},
+			{sv:"4s", name:"", ac1:"2heal", ac2:"", abil:[], img:"", type:"ITEM"},
+			{sv:"5s", name:"", ac1:"1heal", ac2:"2block", abil:[], img:"", type:"ITEM"},
+			{sv:"6s", name:"", ac1:"2heal", ac2:"1block", abil:[], img:"", type:"ITEM"},
+			{sv:"7s", name:"", ac1:"2heal", ac2:"1block", abil:[], img:"", type:"ITEM"},
+			{sv:"8s", name:"", ac1:"2heal", ac2:"1block", abil:["2s","1 ✨"], img:"", type:"ITEM"},
+			{sv:"9s", name:"", ac1:"2heal", ac2:"2block", abil:["2s","Gain ✨ equal to Allies in your Field"], img:"", type:"ITEM"},
+			{sv:"10s", name:"", ac1:"2heal", ac2:"2block", abil:["2s","2d","3 heal"], img:"", type:"ITEM"},
+			{sv:"Js", name:"", ac1:"2heal", ac2:"2block", abil:["2s","Remove all DC from an Ally"], img:"", type:"ALLY"},
+			{sv:"Qs", name:"", ac1:"3heal", ac2:"2block", abil:["2s","Choose an opponent, they discard 1"], img:"", type:"ALLY"},
+			{sv:"Ks", name:"", ac1:"3heal", ac2:"3block", abil:["2s","2h","4 ✨"], img:"", type:"ALLY"},
+
+			// === DIAMONDS (Block) ===
+			{sv:"Ad", name:"", ac1:"6block", ac2:"6block", abil:["2d","2 🛡"], img:"", type:"CHARACTER"},
+			{sv:"2d", name:"", ac1:"2block", ac2:"1attack", abil:[], img:"", type:"ITEM"},
+			{sv:"3d", name:"", ac1:"2block", ac2:"", abil:[], img:"", type:"ITEM"},
+			{sv:"4d", name:"", ac1:"2block", ac2:"1attack", abil:[], img:"", type:"ITEM"},
+			{sv:"5d", name:"", ac1:"3block", ac2:"", abil:[], img:"", type:"ITEM"},
+			{sv:"6d", name:"", ac1:"3block", ac2:"1heal", abil:[], img:"", type:"ITEM"},
+			{sv:"7d", name:"", ac1:"3block", ac2:"1attack", abil:[], img:"", type:"ITEM"},
+			{sv:"8d", name:"", ac1:"3block", ac2:"1heal", abil:["2d","1 🛡"], img:"", type:"ITEM"},
+			{sv:"9d", name:"", ac1:"3block", ac2:"2attack", abil:["2d","Reduce DC allocation by 1 this turn"], img:"", type:"ITEM"},
+			{sv:"10d", name:"", ac1:"3block", ac2:"2heal", abil:["2d","2c","3 🛡"], img:"", type:"ITEM"},
+			{sv:"Jd", name:"", ac1:"2attack", ac2:"3block", abil:["2d","Each Ally you control gains 1 🛡"], img:"", type:"ALLY"},
+			{sv:"Qd", name:"", ac1:"2heal", ac2:"3block", abil:["2d","Gain 2 🛡 and draw 1"], img:"", type:"ALLY"},
+			{sv:"Kd", name:"", ac1:"3heal", ac2:"3block", abil:["2d","2s","Opponent cannot allocate DC until their next turn"], img:"", type:"ALLY"},
+
+			// === JOKERS ===
+			{sv:"Jo", name:"Character DC Tracker", img:"", type:"JOKER"},
+			{sv:"Jo", name:"Turn Guide", img:"", type:"JOKER"},
+			{sv:"Jo", name:"Character DC Tracker", img:"", type:"JOKER"},
+			{sv:"Jo", name:"Turn Guide", img:"", type:"JOKER"},
+		];
+
+
+
+
+
+
+
+
 
         const cnv = document.getElementById("canvas");
         const ctx = cnv.getContext("2d");
@@ -96,7 +113,10 @@
             drawCard(0)
         });
 
-
+		let check = 0;
+		window.addEventListener('keydown', (e) => {
+			if (e.key == " ") {check += 1; drawCard(check);}
+		})
         
 
 
@@ -174,7 +194,7 @@
             requestAnimationFrame(() => {
                 cache.push("CTX AS IMAGE");
                 if (cache.length < cards.length) {
-                    drawCard(i+1);
+                    //drawCard(i+1);
                 } else {
 
                     console.log("All images loaded into cache")
@@ -281,7 +301,7 @@
 			   Place DC counters on it as it takes damage; if it has DC at least equal to it's durability, discard it.
 			4. **End Turn** – Discard any other cards in your Field that have no durability or have DC ≥ durability.  
 			   Then pass play to the next player.
-
+			
 			DAMAGE COUNTERS (DC)
 
 			- DC are placed on cards in the Field when they take damage.  
