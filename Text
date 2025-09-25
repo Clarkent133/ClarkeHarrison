@@ -29,7 +29,8 @@ sudo apt clean
 
 # --- Update system ---
 echo "[1/8] Updating system..."
-sudo apt update && sudo apt upgrade -y
+sudo apt update
+#sudo apt upgrade -y
 
 # --- Install Docker ---
 echo "[2/8] Installing Docker..."
