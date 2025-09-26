@@ -1,188 +1,222 @@
-#!/bin/bash
-set -e
 
-# ==============================
-# Nextcloud + Caddy + DynDNS + rclone + OnlyOffice Installer
-# ==============================
 
-# ==== CONFIGURE THESE ====
-# Nextcloud
-MYSQL_ROOT_PASSWORD="changeme_root"
-MYSQL_PASSWORD="changeme_db"
-NEXTCLOUD_DB="nextcloud"
-NEXTCLOUD_USER="nextcloud"
-NEXTCLOUD_PORT=8080
+sudo apt update && sudo apt full-upgrade -y && sudo apt autoremove -y && sudo apt clean
 
-# DynDNS (ddclient)
-DYNDNS_USERNAME="your_dyndns_username"
-DYNDNS_PASSWORD="your_dyndns_password"
-DYNDNS_HOSTNAME="yourhostname.dyndns.org"
 
-# External drive device (adjust if needed, e.g. /dev/sdc1)
-EXTERNAL_DRIVE="/dev/sdb1"
-EXTERNAL_MOUNT="/mnt/nextcloud-data"
 
-# ==============================
 
-echo "===================================="
-echo " 🚑 Step 0: Fixing any dpkg/apt issues..."
-echo "===================================="
-sudo dpkg --configure -a || true
-sudo apt --fix-broken install -y || true
-sudo apt clean
 
-# --- Update system ---
-echo "[1/9] Updating system..."
+
+
+
+
+Mount external Drive
+
+sudo mkdir -p /mnt/storage
+lsblk
+sudo mount -t ext4 /dev/sdb1 /mnt/storage
+sudo chown -R $USER:$USER /mnt/storage
+
+blkid
+IN /etc/fstab ADD : 
+UUID=xxxx-xxxx  /mnt/storage  ext4  defaults  0  2
+
+
+
+
+
+
+
+
+
+Install Node and NPM
+
+sudo apt install -y nodejs npm
+node -v
+npm -v
+
+
+
+
+
+
+
+
+
+
+
+
+
+Install DYNU DNS (Login via GUI)
+
 sudo apt update
-# sudo apt upgrade -y
+sudo apt install dotnet-runtime-8.0
+wget -O dynu.deb https://www.dynu.com/support/downloadfile/69
+sudo apt install ./dynu.deb
 
-# --- Install Docker ---
-echo "[2/9] Installing Docker..."
+
+
+
+
+
+
+
+
+Setup Docker
+
 sudo apt install -y ca-certificates curl gnupg lsb-release
-
 sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+  sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-  https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | \
+  https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
 sudo apt update
 sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
-
 sudo systemctl enable docker
 sudo systemctl start docker
+sudo usermod -aG docker $USER
 
-# --- Mount external drive for Nextcloud ---
-echo "[3/9] Setting up external drive for Nextcloud..."
-sudo mkdir -p "${EXTERNAL_MOUNT}"
-UUID=$(blkid -s UUID -o value "${EXTERNAL_DRIVE}")
-if ! grep -q "$UUID" /etc/fstab; then
-  echo "UUID=$UUID ${EXTERNAL_MOUNT} ext4 defaults 0 2" | sudo tee -a /etc/fstab
-fi
-sudo mount -a
-# Give permissions to www-data (UID 33 inside container)
-sudo chown -R 33:33 "${EXTERNAL_MOUNT}"
 
-# --- Setup Nextcloud + Caddy + OnlyOffice Docker Compose ---
-echo "[4/9] Setting up Nextcloud + Caddy + OnlyOffice..."
 
+
+
+
+
+
+Check Docker has installed
+
+docker --version
+docker compose version
+
+
+
+
+
+
+Install NextCloud, OnlyOffice and Caddy
+
+sudo mkdir -p /mnt/storage/nextcloud/{app,db,onlyoffice,caddy}
+sudo chown -R $USER:$USER /mnt/storage/nextcloud
+sudo apt remove -y docker.io containerd containerd.io
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo systemctl enable --now docker
+sudo mkdir -p /mnt/storage/nextcloud/caddy_config
 mkdir -p ~/nextcloud-docker
 cd ~/nextcloud-docker
 
-cat > docker-compose.yml <<EOF
-version: "3.9"
+
+In docker-compose.yml
+------------------------------------------------------------------------------------------------------
+version: "3.8"
 
 services:
   db:
     image: mariadb:11
-    container_name: nextcloud-db
+    container_name: nextcloud_db
     restart: unless-stopped
+    volumes:
+      - /mnt/storage/nextcloud/db:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=5xCJ2hvxd3LWNd36
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=5xrjZIWw2InQ8TQG
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
-    environment:
-      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_DATABASE=${NEXTCLOUD_DB}
-      - MYSQL_USER=${NEXTCLOUD_USER}
-    volumes:
-      - db:/var/lib/mysql
 
-  app:
-    image: nextcloud:28
-    container_name: nextcloud-app
+  nextcloud:
+    image: nextcloud:latest
+    container_name: nextcloud_app
     restart: unless-stopped
-    ports:
-      - "${NEXTCLOUD_PORT}:80"
-    environment:
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
-      - MYSQL_DATABASE=${NEXTCLOUD_DB}
-      - MYSQL_USER=${NEXTCLOUD_USER}
-      - MYSQL_HOST=db
     volumes:
-      - ${EXTERNAL_MOUNT}/html:/var/www/html   # <<< Store Nextcloud files on external drive
+      - /mnt/storage/nextcloud/app:/var/www/html
+      - /mnt/storage/nextcloud/data:/var/www/html/data
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=5xrjZIWw2InQ8TQG
+    depends_on:
+      - db
+    labels:
+      caddy: "harrisonhousehold.ddnsfree.com"
+      caddy.reverse_proxy: "{{upstreams 80}}"
 
   onlyoffice:
-    image: onlyoffice/documentserver:7.4
+    image: onlyoffice/documentserver:latest
     container_name: onlyoffice
     restart: unless-stopped
-    ports:
-      - "8082:80"
+    volumes:
+      - /mnt/storage/nextcloud/onlyoffice:/var/www/onlyoffice/Data
+    labels:
+      caddy: "office.harrisonhousehold.ddnsfree.com"
+      caddy.reverse_proxy: "{{upstreams 80}}"
 
   caddy:
-    image: caddy:2
-    container_name: nextcloud-caddy
+    image: lucaslorentz/caddy-docker-proxy:2.8
+    container_name: caddy
     restart: unless-stopped
     ports:
-      - 80:80
-      - 443:443
+      - "80:80"
+      - "443:443"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - app
-      - onlyoffice
+      - /mnt/storage/nextcloud/caddy:/data
+      - /mnt/storage/nextcloud/caddy_config:/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    command: caddy docker-proxy
+------------------------------------------------------------------------------------------------------
 
-volumes:
-  db:
-  caddy_data:
-  caddy_config:
-EOF
-
-# --- Create Caddyfile ---
-cat > Caddyfile <<EOF
-http://localhost {
-    reverse_proxy app:80
-}
-
-http://localhost:8082 {
-    reverse_proxy onlyoffice:80
-}
-EOF
-
-# --- Start containers ---
-echo "[5/9] Starting Nextcloud + Caddy + OnlyOffice..."
 sudo docker compose up -d
 
-# --- Install & Configure ddclient (DynDNS) ---
-echo "[6/9] Installing ddclient for DynDNS..."
-sudo apt install -y ddclient
+Then in NextCloud settings for ONLYOFFICE set the Document Editing Service address to:
+https://office.harrisonhousehold.ddnsfree.com
 
-sudo tee /etc/ddclient.conf > /dev/null <<EOC
-# DynDNS configuration for ddclient
-protocol=dyndns2
-use=web
-server=members.dyndns.org
-login=${DYNDNS_USERNAME}
-password='${DYNDNS_PASSWORD}'
-${DYNDNS_HOSTNAME}
-EOC
 
-sudo sed -i 's/^run_daemon="false"/run_daemon="true"/' /etc/default/ddclient || true
-sudo sed -i 's/^#*daemon_interval=.*/daemon_interval="300"/' /etc/default/ddclient || true
 
-sudo systemctl enable ddclient
-sudo systemctl restart ddclient
 
-# --- Install rclone ---
-echo "[7/9] Installing rclone..."
-curl -fsSL https://rclone.org/install.sh | sudo bash
 
-# --- Enable OnlyOffice app in Nextcloud ---
-echo "[8/9] Enabling OnlyOffice app in Nextcloud..."
-sudo docker exec -u www-data nextcloud-app php occ app:install onlyoffice || true
-sudo docker exec -u www-data nextcloud-app php occ app:enable onlyoffice || true
-sudo docker exec -u www-data nextcloud-app php occ config:app:set onlyoffice DocumentServerUrl --value="http://onlyoffice/"
 
-# --- Final message ---
-echo "===================================="
-echo " ✅ Installation complete!"
-echo " - Nextcloud (local test): http://$(hostname -I | awk '{print $1}'):${NEXTCLOUD_PORT}"
-echo " - Nextcloud (public via Caddy + HTTPS): https://${DYNDNS_HOSTNAME}  (enable once DNS + ports ready)"
-echo " - OnlyOffice Document Server (local): http://$(hostname -I | awk '{print $1}'):8082"
-echo " - Configure in Nextcloud under Settings → Administration → ONLYOFFICE"
-echo " - DynDNS (ddclient) configured for ${DYNDNS_HOSTNAME}"
-echo " - rclone installed (run 'rclone config' to set up remotes)"
-echo " - Nextcloud data stored on external drive at: ${EXTERNAL_MOUNT}"
-echo "===================================="
+
+
+
+
+
+CaddyFile 
+-----------------------------------------------------------------
+harrisonhousehold.ddnsfree.com {
+    reverse_proxy localhost:8080
+}
+
+clarkeharrison.ddnsfree.com {
+    reverse_proxy localhost:3000
+}
+
+# ONLYOFFICE (if you want)
+onlyoffice.example.com {
+    reverse_proxy localhost:8081
+}
+-----------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+Check NextCloud, OnlyOffice and Caddy are setup
+
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+You should see:
+- nextcloud_app → Up with no errors
+- nextcloud_db → Up
+- onlyoffice → Up
+- caddy → Up with ports 80/tcp and 443/tcp
+
