@@ -25,24 +25,13 @@
         <div id="noteList" style="width: calc(100% - 28px); height: calc(100% - 28px); display: flex; flex-direction: column; border: 4px solid black; gap: 10px; padding: 10px; position:fixed; top: -100%; background-color: rgba(200, 200, 200, 0.8); transition: 1s ease-in-out; z-index: 10; overflow-y:auto;"></div>
         <div id="noteArea" style="width:100%; height:100%; position:absolute; z-index:1;"></div>
 
-        <script src="/socket.io/socket.io.js"></script>
-
+        <script src="https://clarkeharrison.co.uk/qrCode.js"></script>
+        
         <script>
 
             const toggleNoteList = document.getElementById("toggleNoteList");
             const noteList = document.getElementById("noteList");
             const noteArea = document.getElementById("noteArea");
-            let socket;
-
-            try {
-                socket = io();
-                socket.on('connection', () => {
-                    console.log('connected')
-                })
-            } catch {
-
-            }
-
 
 
 let notes = [
