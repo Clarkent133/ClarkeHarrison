@@ -1,297 +1,159 @@
-<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/icon-192x192.png">
-    <title>CH</title>
-    <meta name="description" content="A simple site allowing custom HTML Widgets.">
-	<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-</head>
-<body style="margin:0px; padding:0px; height:100dvh;">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link rel="manifest" href="/manifest.json">
+		<title>CH</title>
+		<style>
+			button {
+				width: 100%;
+				height: 100%;
+				border: 4px solid black;
+				border-radius: 8px;
+				font-size:28px;
+				box-shadow: 1px 1px 2px grey;
+				background-color: white;
+				cursor: pointer;
+				user-select: none;
+				-webkit-tap-highlight-color: transparent;
+			}
+		</style>
+	</head>
+    <body style="margin:0; height:100svh; overflow-y: auto;">
+        <button id="toggleNoteList" onclick="noteList.style.top = (noteList.style.top == '0px') ? '-100%' : '0px';" style="width:52px; height:52px; position:fixed; left:50%; bottom:-15px; transform:translateX(-50%); z-index:20; border-radius:16px;"></button>
+        <div id="noteList" style="width: calc(100% - 28px); height: calc(100% - 28px); display: flex; flex-direction: column; border: 4px solid black; gap: 10px; padding: 10px; position: fixed; top: 0px; background-color: rgba(200, 200, 200, 0.8); transition: 1s ease-in-out; z-index: 10; overflow-y: auto;"><h1 style="text-align:center; font-size:52px;"><u>Notes</u></h1><button onclick="runNote(0)" style="height:50px;">Home</button><button onclick="runNote(1)" style="height:50px;">Server JS</button><button onclick="runNote(2)" style="height:50px;">My RPG Card Game</button><button onclick="runNote(3)" style="height:50px;">PC Stuff</button><button onclick="runNote(4)" style="height:50px;">Reset Local Data</button><button onclick="runNote(5)" style="height:50px;">Edit Note</button><button onclick="runNote(6)" style="height:50px;">Run Custom JS</button><button onclick="runNote(7)" style="height:50px;">Save Copy of Notes Object</button></div>
+        <div id="noteArea" style="width:100%; height:100%; position:absolute; z-index:1;"></div>
 
-    <div id="editWidgetWindow" onclick="editingWidget = null; resetWidgetPlacements();" style="display:none; width:100%; background-color:rgba(20,20,20,0.8); z-index:100; position:absolute; left:0px; transition:all 0.3s ease;">
-        <div id="moveWidgetUp" style="width:30px; height:30px; position:absolute; top:5px; right:5px; background-color:white; border:solid black 2px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; user-select:none;">^</div>
-        <div id="moveWidgetDown" style="width:30px; height:30px; position:absolute; bottom:5px; right:5px; background-color:white; border:solid black 2px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; user-select:none;">V</div>
-        <div id="decreaseWidget" style="width:30px; height:30px; position:absolute; top:5px; left:5px; background-color:white; border:solid black 2px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; user-select:none;">-</div>
-        <div id="increaseWidget" style="width:30px; height:30px; position:absolute; bottom:5px; left:5px; background-color:white; border:solid black 2px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; user-select:none;">+</div>
-        <div id="editWidget" style="width:50px; height:50px; position:absolute; top:calc(50% - 27px); left:calc(50% - 27px); background-color:white; border:solid black 2px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:38px; cursor:pointer; user-select:none;">E</div>
-    </div>
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-    <div id="addWidgetDiv" style="display:none; width:100%; height:60px; justify-content:center; align-items:center; position:absolute; left:0px;">
-        <div onclick="addWidget();" style="width:40px; min-height:40px; max-height:40px; border:solid black 2px; border-radius:6px; background-color:grey; display:flex; justify-content:center; align-items:center; font-size:42px; cursor:pointer; color:white;">+</div>
-    </div>
+        <script>
 
-	<script src="/qrCode.js"></script>
+            const toggleNoteList = document.getElementById("toggleNoteList");
+            const noteList = document.getElementById("noteList");
+            const noteArea = document.getElementById("noteArea");
+            let socket;
 
-    <script>
+            try {
+                socket = io();
+                socket.on('connection', () => {
+                    console.log('connected')
+                })
+            } catch {
 
-        const editWidgetWindow = document.getElementById("editWidgetWindow");
-        const moveWidgetUp = document.getElementById("moveWidgetUp");
-        const moveWidgetDown = document.getElementById("moveWidgetDown");
-        const decreaseWidget = document.getElementById("decreaseWidget");
-        const increaseWidget = document.getElementById("increaseWidget");
-        const editWidget = document.getElementById("editWidget");
-        
-        const addWidgetDiv = document.getElementById("addWidgetDiv");
-		const DB_NAME = "Widgets_DB"
-        const STORE = "WidgetsStore";
-		
-        let widgets = [{"html":"<img src=\"https://www.skyweaver.net/images/media/wallpapers/wallpaper1.jpg\" style=\"width:100%; height:100%; object-fit:cover;\"></img>\n\n<div style=\"width:calc(100% - 10px); height:calc(100% - 12px); border-bottom:solid black 2px; display:flex; flex-direction:column; gap:5px; padding:5px; position:absolute;\">\n    <div style=\"width:100%; min-height:40px; display:flex; gap:5px;\">\n        <div id=\"prevDate\" style=\"min-width:36px; height:36px; border:solid black 2px; border-radius:6px; background-color:rgba(255,255,255,0.7); display:flex; justify-content:center; align-items:center; text-align:center; font-size:24px; cursor:pointer;\">&lt;</div>\n        <div id=\"dateTitle\" style=\"width:calc(100% - 4px); height:36px; border:solid black 2px; border-radius:6px; background-color:rgba(255,255,255,0.7); display:flex; justify-content:center; align-items:center; text-align:center; font-size:24px;\"></div>\n        <div id=\"nextDate\" style=\"min-width:36px; height:36px; border:solid black 2px; border-radius:6px; background-color:rgba(255,255,255,0.7); display:flex; justify-content:center; align-items:center; text-align:center; font-size:24px; cursor:pointer;\">&gt;</div>\n    </div>\n    <textarea id=\"diary\" style=\"width:calc(100% - 14px); height:calc(100% - 10px); padding:5px; border:solid black 2px; border-radius:6px; background-color:rgba(255,255,255,0.7); resize:none;\"></textarea>\n</div>\n\n\n\n\n\n\n<js>\n    const days = [\"Sunday\", \"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\"];\n    const dateEndings = [\"st\", \"nd\", \"rd\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"st\", \"nd\", \"rd\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"th\", \"st\"];\n    const months = [\"January\", \"February\", \"March\", \"April\", \"May\", \"June\", \"July\", \"August\", \"September\", \"October\", \"November\", \"December\"];\n    const date = new Date();\n    const dayOfWeek = days[date.getDay()];\n    const dayOfMonth = date.getDate();\n    const month = date.getMonth();\n    const year = date.getFullYear();\n    const fullDate = `${dayOfWeek} ${dayOfMonth}${dateEndings[dayOfMonth-1]} ${months[month]} ${year}`;\n\n    const dateTitle = document.getElementById(\"dateTitle\");\n    const prevDate = document.getElementById(\"prevDate\");\n    const diary = document.getElementById(\"diary\");\n    const nextDate = document.getElementById(\"nextDate\");\n\n    if (!(\"entries\" in widgets[index])) widgets[index][\"entries\"] = {};\n    if (!(fullDate in widgets[index].entries)) widgets[index].entries[fullDate] = \"\";\n    \n    const allEntries = Object.keys(widgets[index].entries);\n    let entry = Object.keys(widgets[index].entries).length - 1;\n\n    function showEntry() {\n        dateTitle.innerHTML = allEntries[entry];\n        diary.value = widgets[index].entries[allEntries[entry]];\n\n        prevDate.style.display = (entry > 0) ? \"flex\": \"none\";\n        nextDate.style.display = (entry < (allEntries.length - 1)) ? \"flex\": \"none\";\n    }\n\n    showEntry();\n\n    prevDate.onclick = function() {entry -= 1; showEntry();};\n\n    nextDate.onclick = function() {entry += 1; showEntry();}\n\n    diary.oninput = function() {\n        widgets[index].entries[allEntries[entry]] = diary.value;\n        saveWidgets();\n    }\n    \n</js>","size":10}];
-
-        let editingWidget = null;
-        let widgetIdTracker = 0;
-
-        
-
-		loadWidgets();
-
-
-
-        
-        function placeInitialWidgets() {
-            let heightAbove = 0;
-            for (let i=0; i<widgets.length; i++) {
-                placeWidget(i, heightAbove);
-                heightAbove += widgets[i].size;
             }
-        }
 
-        function placeWidget(i, heightAbove) {
-            const {html , size} = widgets[i];
-            const widget = document.createElement("div");
-            const id = widgetIdTracker;
-            widget.id = `Widget_${id}`;
-            widgets[i]["id"] = `Widget_${id}`;
-            widget.innerHTML = html.replace(/<js[\s\S]*?>[\s\S]*?<\/js>/gi, '');
-			const scripts = html.match(/<js[\s\S]*?>([\s\S]*?)<\/js>/gi);
-			if (scripts) {
-				for (let j=0; j<scripts.length; j++) {
-					requestAnimationFrame(() => {
-						const code = scripts[j].replace(/<js[\s\S]*?>|<\/js>/gi, '');
-						const fn = new Function("index", code);
-						fn(i)
-					});
 
-				}
-			};
-            widget.style.cssText = `position:absolute; top:${heightAbove*10}%; width:100%; min-height:${size*10}dvh; height:${size*10}dvh; max-height:${size*10}dvh; display:flex; justify-content:center; align-items:center; transition:all 0.3s ease; user-select:none; touch-action:manipulation;`;
-            document.body.appendChild(widget);
 
-            let holdTimer = null;
-            function onHoldComplete() {
-                editingWidget = (editingWidget == `Widget_${id}`) ? null : `Widget_${id}`;
-                resetWidgetPlacements();
-                holdTimer = null;
+let notes = [
+    [
+        "JS",
+        "Home",
+        "noteArea.innerHTML = `\n    <img src=\"https://clarkeharrison.co.uk/wallpaper.jpg\" draggable=\"false\" style=\"width:100%; height:100%; display:block; position:absolute; object-fit:cover; filter:brightness(50%);\"></img>\n    <button id=\"time\" style=\"width:calc(100% - 60px); height:60px; position:absolute; top:30px; left:30px; background-color:rgba(255,255,255,0.8); font-size:48px;\"></button>\n    <iframe src=\"/Editor/\" style=\"width:calc(100% - 68px); height:250px; position:absolute; top:120px; left:30px; border:solid black 4px; opacity:0.8;\"></iframe>\n    <textarea id=\"diary\" placeholder=\"Enter Notes Here ...\" style=\"width:calc(100% - 60px); height:calc(100% - 438px); position:absolute; bottom:30px; left:30px; display:block; padding:10px; border:solid black 4px; border-radius:8px; background-color:rgba(255,255,255,0.8); font-size:20px; resize:none;\"></textarea>\n`;\n\nconst time = document.getElementById(\"time\");\nconst diary = document.getElementById(\"diary\");\n\n\nnoteList.style.top = \"-100%\";\n\n\nif (notes[index].length == 3) notes[index].push(\"\");\n\n\ndiary.value = notes[index][3];\n\n\ndiary.addEventListener('input', () => {\n    if (notes[index].length == 3) notes[index].push(\"\");\n    notes[index][3] = diary.value;\n    saveNotes();\n});\n\n\n// T I M E   A T   T O P\ntime.innerHTML = new Date().toLocaleTimeString();\nconst timeChange = setInterval(() => {\n    if (!time) clearInterval(timeChange);\n    time.innerHTML = new Date().toLocaleTimeString();\n}, 1000);\n\n \n\n\n\n\n\n\n\n\n\n\n\n",
+        ""
+    ],
+    [
+        "TXT",
+        "Server JS",
+        "const http = require('http');\nconst fs = require('fs');\nconst path = require('path');\nconst os = require('os');\nconst { Server } = require(\"socket.io\");\nconst { Ollama } = require('ollama');\nconst aiModel = \"tinyllama\";\nconst ollama = new Ollama();\n\nconst networkInterfaces = os.networkInterfaces();\nlet localIPs = [];\nfor (const interfaceName in networkInterfaces) {\n    const networkInterface = networkInterfaces[interfaceName];\n    for (const { address, family, internal } of networkInterface) {\n        if (family === 'IPv4' && !internal) {\n            localIPs.push(address);\n        }\n    }\n}\n\nconst indexPath = path.join(__dirname, 'index.html');\n\n\nconst server = http.createServer((req, res) => {\n  if (req.url === '/' || req.url === '/index.html') {\n    fs.readFile(indexPath, (err, data) => {\n\t\tres.writeHead(200, { 'Content-Type': 'text/html' });\n\t\tres.end(data);\n    });\n  } else {\n    // Handle other routes (404)\n    res.writeHead(404, { 'Content-Type': 'text/plain' });\n    res.end('404 Not Found');\n  }\n});\n\nfunction restartServer() {\n    console.log(\"Restarting server...\");\n    const child = spawn(process.argv[0], process.argv.slice(1), {\n        cwd: process.cwd(),\n        detached: true,\n        stdio: \"inherit\"\n    });\n    child.unref();\n    process.exit(0);\n}\n\nasync function askAI(messages, callback) {\n    const responseStream = await ollama.chat({\n        model: aiModel,\n        messages: messages,\n        stream: true,\n        think: false\n    });\n    for await (const chunk of responseStream) {\n        const textChunk = chunk.message.content;\n        if (textChunk) {\n            callback(textChunk);\n        }\n    }    \n    callback(\"<finish>\");\n}\n\nconst io = new Server(server, {\n    cors: {\n        origin: \"*\",\n        methods: [\"GET\", \"POST\"]\n    }\n});\n\nio.on('connection', (socket) => {\n\tsocket.on(\"getIP\" , () => {\n\t\tsocket.emit(\"getIP\" , localIPs[0])\n\t})\n\n\tsocket.on(\"promptAI\", (messages) => {\n\t\taskAI(messages , (reply) => {socket.emit(\"promptAI\" , reply)});\n\t})\n\n\tsocket.on('restart', () => {\n\t\t\trestartServer();\n\t})\n})\n\n\nconst PORT = 3000;\nserver.listen(PORT, () => {\n    console.log(`Server running with Address : ${localIPs[0]}:3000`);\n}); \n"
+    ],
+    [
+        "JS",
+        "My RPG Card Game",
+        "noteArea.innerHTML = `\n\n<br><br>\nSetup\n<br><br>\nUse the custom 52-card deck, two six-sided dice (2d6), and the app or printable version. Each player chooses one Character card to form their Field; remove the others. Shuffle the remaining cards to create the World Deck, then draw two cards each. Read the World Setup from the app to begin the story.\n<br><br>\nTaking Turns\n<br><br>\nOn your turn, draw one card, then choose to either play an Ally to your Field, reveal and fight a Monster from your hand, or fight another Player. After resolving your action, the next player takes their turn clockwise.\n<br><br>\nInstants & Events\n<br><br>\nInstants can be played at any time unless stated otherwise, then placed on the bottom of the deck. Some cards trigger Events — when this happens, use the app to generate and read the Event aloud. Follow its instructions; some may lead to a Final Event, which determines how the game ends.\n<br><br>\nActions & Combat\n<br><br>\nWhen making an Action, roll 2d6 and add modifiers from your Field; the total is your Action Score (AS) for that action. In Combat, both sides roll Physical Actions — the lower AS takes one Damage (ties have no effect). Monsters do not roll; their AS is shown on their card. Damage can be assigned between your Character and Allies; defeated Allies are discarded. Defeated Monsters are placed under your Character, granting their Item effect. If your Character takes damage equal to its Life, you’re out.\n<br><br><br><br>\n\n<canvas id=\"cnv\" width=\"250\" height=\"350\" style=\"width:250px; height:350px;\"></canvas>\n\n`;\n\nnoteList.style.top = \"-100%\";\n\nconst cnv = document.getElementById(\"cnv\");\nconst ctx = cnv.getContext(\"2d\");\n\nconst cards = [\n    {PC:\"AC\" , MantisFront:0 , MantisBack:[] , QRCode:\"\" , AS:2 , HP:4 , Attribute:\"\" , ItemAttributeTEMP:\"\"}\n];\n\n\n\n\n\n\n\n\n\nfunction drawCard(i) {\n    const card = cards[i];\n\n    ctx.fillStyle=\"black\";\n    ctx.fillRect(0,0,250,350);\n    ctx.fillStyle=\"white\";\n    ctx.fillRect(5,5,240,340);\n\n    // DRAWING\n\n    ctx.fillStyle = \"black\";\n    ctx.fillRect(55,0,10,245) // VERITCAL DIVIDER\n    ctx.fillRect(0,245,65,10); // HORIZONTAL DIVIDER 1\n\n    drawShape([[15,10],[45,10],[50,15],[50,85],[45,90],[15,90],[10,85],[10,15],[15,10]]); // PLAYING CARD AREA\n    drawShape([[15,100],[45,100],[50,105],[50,135],[45,140],[15,140],[10,135],[10,105],[15,100]]); // MANTIS\n    drawShape([[15,150],[45,150],[50,155],[50,185],[45,190],[15,190],[10,185],[10,155],[15,150]]); // NUMBER 1->54\n    drawShape([[15,200],[45,200],[50,205],[50,235],[45,240],[15,240],[10,235],[10,205],[15,200]]); // QR CODE\n    drawShape([[80,20],[230,20],[225,25],[225,35],[230,40],[80,40],[85,35],[85,25],[80,20]]); // CARD NAME\n    drawShape([[100,40],[115,55],[195,55],[210,40]]); // CARD TYPE\n\n    if (\"ItemAttribute\" in card) {\n        ctx.fillRect(65,245,185,10); // HORIZONTAL DIVIDER 2\n\n        drawShape([[90,165],[150,165],[150,185],[90,185],[90,185]]); // MONSTER AS\n        drawShape([[160,165],[220,165],[220,185],[160,185],[160,165]]); // MONSTER HP\n        drawShape([[80,190],[230,190],[230,230],[80,230],[80,190]]); // MONSTER MODIFIER \n\n        drawShape([[15,265],[65,265],[65,335],[15,335],[15,265]]); // ITEM PICTURE\n        drawShape([[75,265],[235,265],[230,270],[230,280],[235,285],[75,285],[80,280],[80,270],[75,265]]); // ITEM NAME\n        drawShape([[75,295],[235,295],[235,335],[75,335],[75,295]]); // ITEM MODIFIER\n    } else {\n        //drawShape([[90,245],[150,245],[150,265],[90,265],[90,245]]); // CARD AS\n        drawShape([[160,245],[220,245],[220,265],[160,265],[160,245]]); // CARD HP\n        drawShape([[20,270],[230,270],[230,330],[20,330],[20,270]]); // CARD MODIFIER \n    }\n\n    // TEXT\n\n    drawText(10,10,40,88,\"J♥\", \"40px sans-serif\");\n    drawText(10,100,40,40,\"M\");\n    drawText(10,150,40,40,\"N\");\n    drawText(10,200,40,40,\"Q\");\n\n    drawText(100,40,110,17,\"Monster / Item\", \"10px sans-serif\");\n\n    drawText(90,165,60,22,\"AS : 7\");\n    drawText(160,165,60,22,\"HP : 1\");\n\n    drawText(80,190,150,40,\"Modifier Text\");\n\n    drawText(75,295,160,40,\"Item Text\");\n}\n\ndrawCard(0);\n\n\n\n\n\n\n\n\n\nfunction drawShape(points, { lineWidth = 3, stroke = '#000', fill = \"\" } = {}) {\n  ctx.beginPath();\n  ctx.moveTo(points[0][0], points[0][1]);\n  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);\n  ctx.closePath();\n  ctx.lineWidth = lineWidth;\n  ctx.strokeStyle = stroke;\n  ctx.fillStyle = fill;\n  ctx.lineJoin = 'round';\n  ctx.lineCap = 'round';\n  if (fill != \"\") ctx.fill(); else ctx.stroke();\n}\n\n\nfunction drawCircle(x, y, r, colour, startAngle = 0, endAngle = 360) {\n    ctx.beginPath();\n    ctx.arc(x, y, r, startAngle*(Math.PI / 180), endAngle*(Math.PI / 180));\n    ctx.fillStyle = colour;\n    ctx.fill();\n}\n\n\n\nfunction drawText(x,y,w,h,t,font=\"16px sans-serif\"){\n  ctx.save(); ctx.font=font; ctx.textAlign=\"center\"; ctx.textBaseline=\"alphabetic\";\n  const m=ctx.measureText(\"Mg\"), a=m.actualBoundingBoxAscent||0, d=m.actualBoundingBoxDescent||0,\n        fs=parseFloat(/(\\d+(?:\\.\\d+)?)px/.exec(ctx.font)?.[1]||16),\n        lh=a+d||fs*1.2, asc=a||fs*.8, cx=x+w/2;\n  const wrap=s=>{\n    const L=[], mw=w;\n    for(const p of s.split(/\\r?\\n/)){ let l=\"\";\n      for(const w2 of p.split(/\\s+/)){\n        if(ctx.measureText(w2).width>mw){\n          if(l) L.push(l),l=\"\";\n          let c=\"\"; for(const ch of w2){\n            const t2=c+ch; ctx.measureText(t2).width<=mw?c=t2:(L.push(c),c=ch);\n          } l=c; continue;\n        }\n        const t2=l?l+\" \"+w2:w2;\n        ctx.measureText(t2).width<=mw?l=t2:(L.push(l),l=w2);\n      }\n      L.push(l);\n    } return L;\n  };\n  const lines=wrap(t), bh=lines.length*lh, sy=y+(h-bh)/2+asc;\n  ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip();\n  lines.forEach((l,i)=>ctx.fillText(l,cx,sy+i*lh));\n  ctx.restore();\n}\n\n\n\n\n\n/*\n\nSetup\nUse the custom 52-card deck, two six-sided dice (2d6), and the app or printable version. Each player chooses one Character card to form their Field; remove the others. Shuffle the remaining cards to create the World Deck, then draw two cards each. Read the World Setup from the app to begin the story.\nTaking Turns\nOn your turn, draw one card, then choose to either play an Ally to your Field, reveal and fight a Monster from your hand, or fight another Player. After resolving your action, the next player takes their turn clockwise.\nInstants & Events\nInstants can be played at any time unless stated otherwise, then placed on the bottom of the deck. Some cards trigger Events — when this happens, use the app to generate and read the Event aloud. Follow its instructions; some may lead to a Final Event, which determines how the game ends.\nActions & Combat\nWhen making an Action, roll 2d6 and add modifiers from your Field; the total is your Action Score (AS) for that action. In Combat, both sides roll Physical Actions — the lower AS takes one Damage (ties have no effect). Monsters do not roll; their AS is shown on their card. Damage can be assigned between your Character and Allies; defeated Allies are discarded. Defeated Monsters are placed under your Character, granting their Item effect. If your Character takes damage equal to its Life, you’re out.\n\nAce -> Characters\n2-6 -> Actions\n7-10 -> Items/Monsters\nJ-K -> Allies\n\nmantis\n\nqr\n\nnumbered 1-54 (The Mind game)\n\n*/\n\n\n\n\n\n"
+    ],
+    [
+        "TXT",
+        "PC Stuff",
+        "sudo apt update\n\n\n\n -- INSTALL SSH\nsudo apt install -y openssh-server\n\n\n -- NODE JS + NPM\nsudo apt install curl\ncurl -fsSL https://deb.nodesource.com/setup_current.x | sudo -E bash -\nsudo apt install -y nodejs\n\n -- CHECK NODEJS + NPM\nnode -v   # Should show the latest version\nnpm -v    # Should show the latest npm version\n\n\n\n\n -- INSTALL RCLONE\ncurl https://rclone.org/install.sh | sudo bash\n\n\n\n\n\n\n\n -- DNYU DNS\nhttps://www.dynu.com/DynamicDNS/IPUpdateClient/Linux\n\n\n\n\n -- FORMAT EXTERNAL DRIVE\nsudo umount /dev/sda1\nsudo mkfs.ext4 /dev/sda1\nsudo mkdir -p /mnt/storage\nsudo mount /dev/sda1 /mnt/storage\n\n -- AUTO MOUNT EXTERNAL DRIVE\nsudo blkid /dev/sda1\nsudo nano /etc/fstab\nUUID=XXX-XXXXXXXXXX   /mnt/storage   ext4   defaults   0   2\nsudo mount -a\n\n\n\n\n -- INSTALL CADDY\nsudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl\ncurl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/ke>\ncurl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.li>\nchmod o+r /usr/share/keyrings/caddy-stable-archive-keyring.gpg\nchmod o+r /etc/apt/sources.list.d/caddy-stable.list\nsudo apt update\nsudo apt install -y caddy\n\nsudo nano /etc/caddy/Caddyfile\n-----------------------------------------------------------------\nclarkeharrison.co.uk {\n    reverse_proxy localhost:3000\n}\n\ndrive.clarkeharrison.co.uk {\n    header {\n        Strict-Transport-Security \"max-age=31536000; includeSubDomains\"\n        X-Content-Type-Options \"nosniff\"\n        X-Frame-Options \"SAMEORIGIN\"\n        Referrer-Policy \"no-referrer\"\n    }\n\n    reverse_proxy localhost:8080 {\n        header_up Host {host}\n        header_up X-Real-IP {remote_host}\n        header_up X-Forwarded-For {remote_host}\n        header_up X-Forwarded-Proto {scheme}\n    }\n}\n\n\noffice.clarkeharrison.co.uk {\n    reverse_proxy localhost:8081\n}\n-----------------------------------------------------------------\n\n -- RELOAD CADDY\nsudo systemctl reload caddy\n\n\n\n\n -- INSTALL DOCKER\nsudo apt update\nsudo apt install -y ca-certificates curl gnupg lsb-release\nsudo mkdir -p /etc/apt/keyrings\ncurl -fsSL https://download.docker.com/linux/ubuntu/gpg | \\\n  sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg\necho \\\n  \"deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \\\n  https://download.docker.com/linux/ubuntu \\\n  $(lsb_release -cs) stable\" | \\\n  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null\nsudo apt update\nsudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin\nsudo systemctl enable docker\nsudo systemctl start docker\n\n\n -- CHECK DOCKER\n docker --version\ndocker compose version\nsudo docker run hello-world\n\n\n\n\n\n\n\n\n\n\n\n -- INSTALL NEXTCLOUD TO PORT 8080\nsudo mkdir -p /mnt/storage/nextcloud\ncd /mnt/storage/nextcloud\nsudo nano docker-compose.yml\n-----------------------------------------------------------------\nversion: \"3.8\"\n\nservices:\n  db:\n    image: postgres:15\n    container_name: nextcloud-db\n    restart: unless-stopped\n    environment:\n      POSTGRES_USER: nextcloud\n      POSTGRES_PASSWORD: nextcloud\n      POSTGRES_DB: nextcloud\n    volumes:\n      - ./db:/var/lib/postgresql/data\n    networks:\n      - nextcloud-net\n\n  app:\n    image: nextcloud\n    container_name: nextcloud-app\n    restart: unless-stopped\n    ports:\n      - \"8080:80\"   # Nextcloud UI at http://localhost:8080\n    environment:\n      POSTGRES_HOST: db\n      POSTGRES_USER: nextcloud\n      POSTGRES_PASSWORD: nextcloud\n      POSTGRES_DB: nextcloud\n    volumes:\n      - ./nextcloud:/var/www/html\n    depends_on:\n      - db\n    networks:\n      - nextcloud-net\n\n  onlyoffice:\n    image: onlyoffice/documentserver\n    container_name: nextcloud-docs\n    restart: unless-stopped\n    environment:\n      JWT_ENABLED: \"false\"\n    volumes:\n      - ./onlyoffice_data:/var/www/onlyoffice/Data\n      - ./onlyoffice_logs:/var/log/onlyoffice\n    ports:\n      - \"8081:80\"   # OnlyOffice available at http://localhost:8081\n    networks:\n      - nextcloud-net\n\nnetworks:\n  nextcloud-net:\n\n-----------------------------------------------------------------\ncd /mnt/storage/nextcloud\nsudo docker compose up -d\n\ncd /mnt/storage/nextcloud/nextcloud/config\nsudo nano config.php\n\n-----------------------------------------------------------------\nADD TO TRUSTED DOMAIN:\n    1 => 'drive.clarkeharrison.co.uk',\nADD ANYWHERE:\n  'overwriteprotocol' => 'https',\n-----------------------------------------------------------------\n\n -- IN NEXTCLOUD ONLYOFFICE TAB ADD SERVER ADDRESS\nhttps://office.clarkeharrison.co.uk/\n\n -- UDPATE NEXTCLOUD\ncd /mnt/storage/nextcloud\nsudo docker compose pull\nsudo docker compose up -d\n\n\n\n\n\n\n\n -- BACKING UP\nConnect Dock\nlsblk -o NAME,SIZE,FSTYPE,MOUNTPOINT\nget the name of the drive\nsudo mount /dev/xxx /mnt/dock\nsudo rsync -aHv --delete --info=progress2 /mnt/storage/ /mnt/dock/\nsudo umount /mnt/dock\n\n\n\n\n\n\n\n\n\n\n\n -- START GAME SERVER AND MY WEBSITE SERVER AND MAKE AUTOMATIC\ncd /etc/systemd/system\n\nsudo nano myServer.service\n-----------------------------------------------------------------\n[Unit]\nDescription=My ClarkeHarrison Website\nAfter=network.target\n\n[Service]\nExecStart=/usr/bin/node /mnt/storage/nextcloud/nextcloud/data/Clarke/files/Server/server.js\nRestart=always\nRestartSec=5\n# Runs as root (not recommended, but allowed)\nUser=root\nWorkingDirectory=/mnt/storage/nextcloud/nextcloud/data/Clarke/files/Server\nEnvironment=NODE_ENV=production\n\n[Install]\nWantedBy=multi-user.target\n-----------------------------------------------------------------\nsudo systemctl daemon-reload\nsudo systemctl enable myServer\nsudo systemctl start myServer\nsudo systemctl restart myServer\n\n\n\n\n\n\n"
+    ],
+    [
+        "JS",
+        "Reset Local Data",
+        "indexedDB.deleteDatabase(\"notesDB\");\nwindow.location.reload();\n"
+    ],
+    [
+        "JS",
+        "Edit Note",
+        "let txt = `Please enter the value of the note to edit.\\n\\n`;\nfor (let i=0; i<notes.length; i++) {\n    txt += `${i} - ${notes[i][1]}\\n`\n}\nconst id = parseInt(prompt(txt));\nif (isNaN(id)) return;\nnoteArea.innerHTML = `<textarea id=\"txtArea\" wrap=\"off\" style=\"width:100%; height:100%; padding:10px; font-size:20px; border:0px; resize:none; outline:none; wrap:none;\"></textarea>`;\nconst txtArea = document.getElementById(\"txtArea\")\ntxtArea.value = notes[id][2];\ntxtArea.addEventListener(\"input\", () => {\n    notes[id][2] = txtArea.value;\n    saveNotes();\n});\n\ntxtArea.addEventListener(\"keydown\", function(e) {\n    if (e.key === \"Tab\") {\n        e.preventDefault();\n        const start = this.selectionStart;\n        const end = this.selectionEnd;\n        this.value = this.value.substring(0, start) + \"    \" + this.value.substring(end);\n        this.selectionStart = this.selectionEnd = start + 4;\n    }    \n});\n\nnoteList.style.top = \"-100%\";"
+    ],
+    [
+        "JS",
+        "Run Custom JS",
+        "const js = prompt('Please enter custom JS here to run.')\nconst newJS = new Function(js); \nnewJS();\n"
+    ],
+    [
+        "JS",
+        "Save Copy of Notes Object",
+        "const output = \"let notes = \" + JSON.stringify(notes, null, 4) + \";\";\nalert(\"Copied to Clipboard.\");\n navigator.clipboard.writeText(output); "
+    ]
+];
+            
+
+            function populateNoteList() {
+                let txt = `<h1 style="text-align:center; font-size:52px;"><u>Notes</u></h1>`;
+                for (let i=0; i<notes.length; i++) {
+                    txt += `<button onclick="runNote(${i})" style="height:50px;">${notes[i][1]}</button>`;
+                }
+                noteList.innerHTML = txt;
             }
-            function startHold(e) {
-                if (holdTimer !== null) return;
-                holdTimer = setTimeout(onHoldComplete, 500);
-            }
-            function cancelHold() {
-                if (holdTimer !== null) {
-                    clearTimeout(holdTimer);
-                    holdTimer = null;
+
+            function runNote(id = 0) {
+                switch(notes[id][0]) {
+                    case "HTML":
+                        noteArea.innerHTML = notes[id][2];
+                        noteList.style.top = "-100%";
+                        break;
+                    case "TXT":
+                        noteArea.innerHTML = ``;
+                        const txtArea = document.createElement("textarea");
+                        txtArea.style.cssText = "width:100%; height:100%; padding:10px; font-size:16px; border:0px; resize:none; outline:none;";
+                        txtArea.value = notes[id][2];
+                        txtArea.addEventListener("keydown", () => {
+                            notes[id][2] = txtArea.value;
+                        })
+                        noteArea.appendChild(txtArea);
+                        noteList.style.top = "-100%";
+                        break;
+                    case "JS":
+                        const newFunc = new Function('index', notes[id][2]);
+                        newFunc(id);
                 }
             }
-            widget.addEventListener('mousedown', startHold);
-            widget.addEventListener('touchstart', startHold);
-            widget.addEventListener('mouseup',   cancelHold);
-            widget.addEventListener('mouseleave', cancelHold);
-            widget.addEventListener('touchend',   cancelHold);
-            widget.addEventListener('touchcancel', cancelHold);
 
-            widgetIdTracker += 1;                
-        }
+            async function saveNotes(save = true) {
+                const db = await new Promise((res, rej) => {
+                    const r = indexedDB.open("notesDB", 1);
+                    r.onupgradeneeded = () => r.result.createObjectStore("notesDB");
+                    r.onsuccess = () => res(r.result);
+                    r.onerror = () => rej(r.error);
+                });
 
-        function resetWidgetPlacements() {
-			saveWidgets();
-            let heightAbove = 0;
-            for (let i=0; i<widgets.length; i++) {
-                const {html , size , id} = widgets[i];
-                const widget = document.getElementById(id);
-                widget.style.top = `${heightAbove*10}%`;
-                widget.style.minHeight = `${size*10}dvh`;
-                widget.style.height = `${size*10}dvh`;
-                widget.style.maxHeight = `${size*10}dvh`;
-                if (editingWidget == id) {
-                    editWidgetWindow.style.display = "block";
-                    editWidgetWindow.style.top = widget.style.top; 
-                    editWidgetWindow.style.height = widget.style.height;
-                    
-                    moveWidgetUp.style.display = (i==0) ? "none" : "flex";
-                    moveWidgetDown.style.display = (i==(widgets.length - 1)) ? "none" : "flex";
-                    decreaseWidget.style.display = (size==1) ? "none" : "flex";
-                    increaseWidget.style.display = (size==10) ? "none" : "flex";
-                    
-                    moveWidgetUp.onclick = function(e) {moveWidget(i, -1); e.stopPropagation();};
-                    moveWidgetDown.onclick = function(e) {moveWidget(i, 1); e.stopPropagation();};
-                    decreaseWidget.onclick = function(e) {widgets[i].size -= 1; resetWidgetPlacements(); e.stopPropagation();};
-                    increaseWidget.onclick = function(e) {widgets[i].size += 1; resetWidgetPlacements(); e.stopPropagation();};
+                const tx = db.transaction("notesDB", "readwrite");
+                const store = tx.objectStore("notesDB");
+                const key = "notes";
 
-                    editWidget.onclick = function(e) {
-                        widget.innerHTML = "";
-                        editingWidget = null;
-                        let editor = document.createElement("textarea");
-						editor.wrap = "off";
-                        editor.style.cssText = `width:calc(100% - 20px); height:calc(100% - 20px); border:0px; padding:5px; border:solid black 5px; resize:none; background-color:rgba(0,0,0,0.9); color:white; scrollbar-color:white rgba(0,0,0,0);`;
-                        editor.value = widgets[i].html;
-						editor.onmousedown = function(e) {e.stopPropagation();};
-                        widget.appendChild(editor);
-						editor.addEventListener('keydown', function(e) {
-							if (e.key === 'Tab') {
-								e.preventDefault();
-								const start = this.selectionStart;
-								const end = this.selectionEnd;
-								this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
-								this.selectionStart = this.selectionEnd = start + 4;
-							}
-						});
-                        let saveButton = document.createElement("div");
-                        saveButton.style.cssText = `width:60px; height:30px; position:absolute; bottom:8px; right:8px; background-color:white; border:solid black 2px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer; user-select:none;`;
-                        saveButton.innerHTML = "Save";
-                        saveButton.onclick = function() {
-							if (editor.value == "") {
-								widget.remove();
-								widgets.splice(i, 1);
-								resetWidgetPlacements();
-							} else {
-								widgets[i].html = editor.value;
-								widget.innerHTML = editor.value.replace(/<js[\s\S]*?>[\s\S]*?<\/js>/gi, '');
-								const scripts = editor.value.match(/<js[\s\S]*?>([\s\S]*?)<\/js>/gi);
-								if (scripts) {
-									for (let j=0; j<scripts.length; j++) {
-										requestAnimationFrame(() => {
-											const code = scripts[j].replace(/<js[\s\S]*?>|<\/js>/gi, '');
-											const fn = new Function("index", code);
-											fn(i)
-										});
-									}
-								};
-								
-							}
-							saveWidgets();
-                            
-                        };
-                        widget.appendChild(saveButton);
+                return new Promise((res, rej) => {
+                    const req = save ? store.put(notes, key) : store.get(key);
+                    req.onsuccess = () => {
+                        if (!save) {
+                            if (req.result) notes = req.result;
+                            populateNoteList();
+                            runNote();
+                        }
+                        res(req.result);
                     };
-                }
-                heightAbove += size;
+                    req.onerror = () => rej(req.error);
+                });
             }
-            if (editingWidget == null) {
-                editWidgetWindow.style.display = "none";
-                addWidgetDiv.style.display = "none";
-            } else {
-                addWidgetDiv.style.display = "flex";
-                addWidgetDiv.style.top = `${heightAbove*10}dvh`;
+
+            saveNotes(false);
+
+        </script>
+
+        <script>
+            if ("serviceWorker" in navigator) {
+                navigator.serviceWorker.register("/service-worker.js");
             }
-        }
-
-        function moveWidget(pos, dir) {
-            const [item] = widgets.splice(pos, 1);
-            widgets.splice(pos + dir, 0, item);
-            resetWidgetPlacements();
-        }
-
-        function addWidget() {
-            widgets.push({html:"<div style=\"width:100%; height:calc(100% - 2px); border-bottom:solid black 2px; background-color:rgb(200,200,200)\">\n\n</div>" , size:1});
-            placeWidget(widgets.length - 1);
-            resetWidgetPlacements();
-        }
-		
-		
-		
-		
-		function uploadWidgets() {
-			const input = document.createElement("input");
-			input.type = "file";
-			input.accept = "application/json";
-			input.style.display = "none";
-			input.onchange = function (event) {
-				const file = event.target.files[0];
-				if (!file) return;
-				const reader = new FileReader();
-				reader.onload = function (e) {
-					try {
-						for (let j=0; j<widgets.length; j++) {
-							document.getElementById(widgets[j].id).remove();
-						}
-						const data = JSON.parse(e.target.result);
-						if (data) widgets = data;
-						editingWidget = null;
-						widgetIdTracker = 0;
-						placeInitialWidgets();
-					} catch (err) {
-						alert("Invalid JSON file.");
-						console.error(err);
-					}
-				};
-				reader.readAsText(file);
-			};
-			input.click();
-		}	
-		
-		
-		
-		function downloadWidgets() {
-			const json = JSON.stringify(widgets, null, 2);
-			const blob = new Blob([json], { type: "application/json" });
-			const url = URL.createObjectURL(blob);
-			const a = document.createElement("a");
-			a.href = url;
-			let fileName = prompt("Please enter the name of the file or leave blank for default.");
-			a.download = `${(fileName != "") ? fileName : "WidgetSaveFile"}.json`;
-			a.click();
-			URL.revokeObjectURL(url);
-    
-		}
-		
-
-        function saveWidgets() {
-            const r = indexedDB.open(DB_NAME, 1);
-            r.onupgradeneeded = () => r.result.createObjectStore(STORE);
-            r.onsuccess = () => {
-                const tx = r.result.transaction(STORE, "readwrite");
-                tx.objectStore(STORE).put(widgets, "widgets");
-                console.log("Saved to Local Storage.");
-            };
-        }
-
-        function loadWidgets() {
-            const r = indexedDB.open(DB_NAME, 1);
-            r.onupgradeneeded = () => r.result.createObjectStore(STORE);
-            r.onsuccess = () => {
-                const tx = r.result.transaction(STORE, "readonly");
-                tx.objectStore(STORE).get("widgets").onsuccess = e => {
-					if (e.target.result !== undefined) widgets = e.target.result;
-					console.log("Loaded from Local Storage.");
-					placeInitialWidgets();
-                };
-            };
-        }
-
-        function resetWidgets() {
-            indexedDB.deleteDatabase(DB_NAME);
-        }
-
-
-
-        
-    </script>
-
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function () {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(function (registration) {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    }, function (err) {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-            });
-        }
-    </script>
-
-</body>
+        </script>
+	</body>
 </html>
