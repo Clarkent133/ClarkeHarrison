@@ -31,16 +31,6 @@
             const toggleNoteList = document.getElementById("toggleNoteList");
             const noteList = document.getElementById("noteList");
             const noteArea = document.getElementById("noteArea");
-            let socket;
-
-            try {
-                socket = io();
-                socket.on('connection', () => {
-                    console.log('connected')
-                })
-            } catch {
-
-            }
 
 
 
