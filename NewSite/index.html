@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- <link rel="manifest" href="/manifest.json"> -->
+        <title>CH</title>
+
+        <!-- <link rel="icon" type="image/png" href="./CATT.png"> -->
+        <style id="customCSS"></style>
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    </head>
+    <body style="padding:0px; margin:0px; height:100dvh;">
+
+        <div id="customHTML" style="height:100%; overflow-y:auto; scrollbar-width:none;"></div>
+
+        <script src="https://clarkeharrison.co.uk/qrCode.js"></script>
+
+        <script>
+
+            let pages = {
+                "Home": {
+                    "HTML": "<h1>Welcome</h1>\n<canvas id=\"cnv\" width=\"400\" height=\"300\" style=\"width:400px; height:300px; border:solid black 2px;\"></canvas>\n<br>\n<button onclick=\"editPage('Home')\">Edit Home</button>\n<button onclick=\"editPage('Notes')\">Edit Notes</button>",
+                    "CSS": "",
+                    "JS": "const cnv = document.getElementById(\"cnv\");\nconst ctx = cnv.getContext(\"2d\");\n\nctx.fillStyle = \"red\";\nctx.fillRect(20,20,40,40);\n\n\n\n\n\n\n\n\n\n\n\nwindow.editPage = function(pageName='Home') {\n    if (!(pageName in pages)) pages[pageName] = {\"HTML\" : \"\" , \"CSS\" : \"\" , \"JS\" : \"\"};\n    customHTML.innerHTML = `\n        <h2>HTML</h2>\n        <textarea id=\"htmlEditArea\" style=\"width:90%; height:100px;\"></textarea>\n        <hr>\n        <h2>CSS</h2>\n        <textarea id=\"cssEditArea\" style=\"width:90%; height:20px;\"></textarea>\n        <hr>\n        <h2>JS</h2>\n        <textarea id=\"jsEditArea\" style=\"width:90%; height:200px;\"></textarea>\n        <hr>\n        <br>\n        <button id=\"showPageButton\">Show Page</button>\n        <button id=\"savePageButton\">Save</button>\n    `;\n\n    const htmlEditArea = document.getElementById('htmlEditArea');\n    const cssEditArea = document.getElementById('cssEditArea');\n    const jsEditArea = document.getElementById('jsEditArea');\n\n    const showPageButton = document.getElementById('showPageButton');\n    const savePageButton = document.getElementById('savePageButton');\n\n    htmlEditArea.value = pages[pageName]['HTML'];\n    cssEditArea.value = pages[pageName]['CSS'];\n    jsEditArea.value = pages[pageName]['JS'];\n\n    htmlEditArea.addEventListener(\"input\", updatePages);\n    cssEditArea.addEventListener(\"input\", updatePages);\n    jsEditArea.addEventListener(\"input\", updatePages);\n\n    htmlEditArea.addEventListener(\"keydown\", tabFunctionality);\n    cssEditArea.addEventListener(\"keydown\", tabFunctionality);\n    jsEditArea.addEventListener(\"keydown\", tabFunctionality);\n\n    function updatePages() {\n        pages[pageName]['HTML'] = htmlEditArea.value;\n        pages[pageName]['CSS'] = cssEditArea.value;\n        pages[pageName]['JS'] = jsEditArea.value;\n        savePages();\n    }\n\n    function tabFunctionality(e) {\n        if (e.key === \"Tab\") {\n            e.preventDefault();\n            const start = this.selectionStart;\n            const end = this.selectionEnd;\n            this.value = this.value.substring(0, start) + \"    \" + this.value.substring(end);\n            this.selectionStart = this.selectionEnd = start + 4;\n        }  \n    }\n\n    showPageButton.onclick = function() {\n        showPage(pageName);\n    };\n\n    savePageButton.onclick = function() {\n        navigator.clipboard.writeText(\"let pages = \" + JSON.stringify(pages, null, 4) + \";\");\n        alert(\"Saved to Clipboard !\");\n    }\n}\n\n"
+                }
+            };
+
+            const customHTML = document.getElementById("customHTML");
+            const customCSS = document.getElementById("customCSS");
+
+            function showPage(pageName="Home") {
+                customHTML.innerHTML = pages[pageName]["HTML"];
+                customCSS.innerHTML = pages[pageName]["CSS"];
+                new Function(pages[pageName]["JS"])();
+            }
+
+            async function savePages(save = true) {
+                const db = await new Promise((res, rej) => {
+                    const r = indexedDB.open("pagesDB", 1);
+                    r.onupgradeneeded = () => r.result.createObjectStore("pagesDB");
+                    r.onsuccess = () => res(r.result);
+                    r.onerror = () => rej(r.error);
+                });
+
+                const tx = db.transaction("pagesDB", "readwrite");
+                const store = tx.objectStore("pagesDB");
+                const key = "pages";
+
+                return new Promise((res, rej) => {
+                    const req = save ? store.put(pages, key) : store.get(key);
+                    req.onsuccess = () => {
+                        if (!save) {
+                            if (req.result) pages = req.result;
+                            showPage();
+                        }
+                        res(req.result);
+                    };
+                    req.onerror = () => rej(req.error);
+                });
+            }
+
+            savePages(false);
+
+        </script>
+
+        <script>
+            // if ("serviceWorker" in navigator) {
+            //     navigator.serviceWorker.register("/service-worker.js");
+            // }
+        </script>
+    </body>
+</html>
