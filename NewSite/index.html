@@ -12,7 +12,7 @@
     </head>
     <body style="padding:0px; margin:0px; height:100dvh;">
 
-        <div id="customHTML" style="height:100%; overflow-y:auto; scrollbar-width:none; transition:all 1s ease-in-out;"></div>
+        <div id="customHTML" style="height:100%; overflow-y:auto; scrollbar-width:none; transition:all 0.5s ease-in-out;"></div>
 
         <script src="https://clarkeharrison.co.uk/qrCode.js"></script>
 
@@ -42,7 +42,7 @@
                     customCSS.innerHTML = pages[pageName]["CSS"];
                     new Function(pages[pageName]["JS"])();
                     requestAnimationFrame(() => {customHTML.style.opacity = 1;})
-                }, 1000);
+                }, 500);
 
             }
 
