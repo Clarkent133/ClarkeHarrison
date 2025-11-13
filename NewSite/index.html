@@ -51,12 +51,11 @@
             function showPage(pageName="Home") {
                 customHTML.style.opacity = 0;
                 setTimeout(() => {
-                    customHTML.innerHTML = pages[pageName]["HTML"].slice(1).join("\n");
-                    customCSS.innerHTML = pages[pageName]["CSS"].slice(1).join("\n");
-                    new Function(pages[pageName]["JS"].slice(1).join("\n"))();
+                    customHTML.innerHTML = pages[pageName]["HTML"].join("\n");
+                    customCSS.innerHTML = pages[pageName]["CSS"].join("\n");
+                    new Function(pages[pageName]["JS"].join("\n"))();
                     requestAnimationFrame(() => {customHTML.style.opacity = 1;})
                 }, 300);
-
             }
 
             async function savePages(save = true) {
