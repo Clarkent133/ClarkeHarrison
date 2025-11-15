@@ -14,7 +14,7 @@
 
         <div id="customHTML" style="height:100%; overflow-y:auto; scrollbar-width:none; transition:all 0.3s ease-in-out;"></div>
 
-        <script src="https://clarkeharrison.co.uk/NewSite/kaplay.js"></script>
+        <script src="https://clarkeharrison.co.uk/kaplay.js"></script>
         <script src="https://clarkeharrison.co.uk/qrCode.js"></script>
 
         <script>
@@ -58,7 +58,7 @@
         ],
         "JS": [
             "/* KAPLAY */\n\ncustomHTML.style.display = \"none\";\ndocument.body.style.overflowY = \"hidden\"\n\n\n\nconst k = kaplay({\n    width: 720,\n    height:480,\n    letterbox: true,\n    background: [ 0, 0, 0 ],\n    debugKey: \"p\",\n    global: false,\n    font: \"monospace\"\n});\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
-            "/* ASSET LOADING */\n\n\n\nk.loadSprite('ss', 'https://clarkeharrison.co.uk/NewSite/ss.png', {\n    sliceX: 49,\n    sliceY: 22,\n    anims: {\n\n    }\n});\n\n\n\nk.loadBean();",
+            "/* ASSET LOADING */\n\n\n\nk.loadSprite('ss', 'https://clarkeharrison.co.uk/ss.png', {\n    sliceX: 49,\n    sliceY: 22,\n    anims: {\n\n    }\n});\n\n\n\nk.loadBean();",
             "/* MAIN SCENE */\n\n\n\nk.scene(\"main\", () => {\n\n    const p = k.add([\n        k.sprite(\"ss\", {\n            frame: 1\n        }),\n        k.pos(20, 20)\n    ]);\n\n\n\n    k.add([\n        k.sprite(\"bean\"),\n        k.pos(60, 60)\n    ]);\n\n})\n\nk.go(\"main\");"
         ]
     },
