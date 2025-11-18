@@ -149,7 +149,7 @@
 					"JS": [
 						""
 					],
-					"icon": "https://www.clarkeharrison.co.uk/Assets/code.png"
+					"icon": "https://www.clarkeharrison.co.uk/Assets/home.png"
 				},
 				"Click And Treat Training": {
 					"HTML": [
@@ -264,13 +264,18 @@
 			function editPageName(pageName="") {
 				popupArea.style.display = "flex";
 				popupArea.innerHTML = "";
+
+				let iconImg = "https://www.clarkeharrison.co.uk/Assets/code.png";
 				
 				const nameIconArea = createHTMLElement("div", "", "display:flex; gap:10px; height:40px;", "", "", popupArea);
 				const nameInput = createHTMLElement("input", "", "", "", "", nameIconArea);
 				nameInput.placeholder = "Page Name ...";
 				nameInput.type = "text";
 				if (pageName != "") nameInput.value = pageName;
-				const iconArea = createHTMLElement("img", "", "cursor:pointer;", "", "", nameIconArea);
+				const iconArea = createHTMLElement("img", "", "cursor:pointer;", "", "", nameIconArea, function() {
+					iconImg = prompt("Please enter the URL of the image you want to use for the Icon.");
+					iconArea.src = iconImg;
+				});
 				
 				const buttonsArea = createHTMLElement("div", "", "display:flex; justify-content:space-around; height:40px; width:100%;", "", "", popupArea);
 				if (pageName != "") {
@@ -288,7 +293,7 @@
 					if (nameInput.value in notebook) {
 						if (prompt("A page with that name already exists, do you want to overwrite it with this?\n\nEnter YES to confirm.") != "YES") return;
 					}
-					let saving = {"HTML":[""],"CSS":[""],"JS":[""],"icon":"https://www.clarkeharrison.co.uk/Assets/code.png"};
+					let saving = {"HTML":[""],"CSS":[""],"JS":[""],"icon":iconImg};
 					if (pageName != "") {
 						saving = JSON.parse(JSON.stringify(notebook[pageName]));
 						delete notebook[pageName];
