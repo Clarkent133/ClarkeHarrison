@@ -163,7 +163,7 @@
 					"JS": [
 						""
 					],
-					"icon": "https://www.clarkeharrison.co.uk/Assets/notes.png"
+					"icon": "https://www.clarkeharrison.co.uk/Assets/note.png"
 				},
 				"Click And Treat Training": {
 					"HTML": [
@@ -308,11 +308,12 @@
 					if (nameInput.value in notebook) {
 						if (prompt("A page with that name already exists, do you want to overwrite it with this?\n\nEnter YES to confirm.") != "YES") return;
 					}
-					let saving = {"HTML":[""],"CSS":[""],"JS":[""],"icon":iconImg};
+					let saving = {"HTML":[""],"CSS":[""],"JS":[""]};
 					if (pageName != "") {
 						saving = JSON.parse(JSON.stringify(notebook[pageName]));
 						delete notebook[pageName];
 					}
+					saving.icon = iconImg;
 					notebook[nameInput.value] = saving;
 					saveNotebook();
 					populateListArea();
