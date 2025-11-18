@@ -7,6 +7,7 @@ const PRECACHE_URLS = [
   '/Assets/icon-512x512.png',
   '/Assets/code.png',
   '/Assets/plus.png',
+  '/Assets/expand.png',
   '/Assets/ss.png',
   '/Assets/wallpaper.jpg',
   '/manifest.json',
