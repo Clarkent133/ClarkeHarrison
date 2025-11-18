@@ -7,7 +7,7 @@
         <link rel="manifest" href="./manifest.json">
         <title>Notebook</title>
 
-        <link rel="icon" type="image/png" href="./Assets/icon-192x192.png">
+        <link rel="icon" type="image/png" href="./Assets/logo.png">
 
         <style>
 			#panelArea {
@@ -153,6 +153,18 @@
 					],
 					"icon": "https://www.clarkeharrison.co.uk/Assets/home.png"
 				},
+				"Notes": {
+					"HTML": [
+						"<h1>Notes</h1>"
+					],
+					"CSS": [
+						""
+					],
+					"JS": [
+						""
+					],
+					"icon": "https://www.clarkeharrison.co.uk/Assets/notes.png"
+				},
 				"Click And Treat Training": {
 					"HTML": [
 						"<!--Header--> \n\n\n<div style=\"height:500px; position:relative; background-color:grey;\">\n    <img style=\"width:160px; height:160px; position:relative; top:30px; left:30px; border-radius:600px;\"></img>\n    <div class=\"fadeUp\">\n        <h1 style=\"color:white;\">Personalised 1-2-1 Dog Training</h1>\n        <p style=\"color:white;\">Building trust, one click at a time!</p>\n    </div>\n</div>\n\n\n<canvas></canvas>\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n",
@@ -278,6 +290,7 @@
 					iconImg = prompt("Please enter the URL of the image you want to use for the Icon.");
 					iconArea.src = iconImg;
 				});
+				iconArea.src = iconImg;
 				
 				const buttonsArea = createHTMLElement("div", "", "display:flex; justify-content:space-around; height:40px; width:100%;", "", "", popupArea);
 				if (pageName != "") {

@@ -3,8 +3,7 @@ const CACHE_NAME = 'Notebook-Cache';
 const PRECACHE_URLS = [
   '/',
   '/index.html',
-  '/Assets/icon-192x192.png',
-  '/Assets/icon-512x512.png',
+  '/Assets/logo.png',
   '/Assets/code.png',
   '/Assets/plus.png',
   '/Assets/home.png',
