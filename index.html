@@ -88,11 +88,12 @@
                 color: white;
             }
             .listItem img {
-                width: 40px;
-                height: 40px;
+                width: 30px;
+                height: 30px;
+				padding: 5px;
                 min-width: 40px;
                 min-height: 40px;
-				border: solid white 1px;
+				border: solid #666666 1px;
                 border-radius: 12px;
             }
 			.editorButton {
@@ -230,7 +231,7 @@
 						}
 					});
 					itemPic.src = notebook[pageName].icon;
-                    const lineBreak = createHTMLElement("div", "", "width:calc(100% - 20px); height:1px; background-color:white; margin-left:10px;", "", "", listArea);
+                    const lineBreak = createHTMLElement("div", "", "width:calc(100% - 20px); height:1px; background-color:#666666; margin-left:10px;", "", "", listArea);
                 };
 				const newItem = createHTMLElement("div", "", "", "", "listItem", listArea, function() {
 					editPageName();
@@ -420,5 +421,6 @@
         </script>
     </body>
 </html>
+
 
 
