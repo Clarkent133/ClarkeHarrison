@@ -353,7 +353,7 @@
 				
 				const dividerArea = createHTMLElement("div", "", "display:flex; height:30px; gap:10px; background-color:#666666; padding:5px; flex: 0 0 auto; justify-content:space-around;", "", "", mainEditArea);
 				createHTMLElement("div", "Reset", "width:100%;", "", "editorButton", dividerArea, function() {
-					if (prompt('Are you sure?') == 'Yes') {
+					if (prompt('Are you sure you want to reset all changes?\n\nEnter YES to confirm.') == 'YES') {
 						indexedDB.deleteDatabase('notebookDB');
 						window.location.reload();
 					}
@@ -422,6 +422,7 @@
         </script>
     </body>
 </html>
+
 
 
 
