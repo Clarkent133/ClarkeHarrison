@@ -1,12 +1,17 @@
-const CACHE_NAME = 'my-app-cache-v2';
+const CACHE_NAME = 'Notebook-Cache';
 
 const PRECACHE_URLS = [
   '/',
   '/index.html',
-  '/icon-192x192.png',
-  '/icon-512x512.png',
+  '/Assets/icon-192x192.png',
+  '/Assets/icon-512x512.png',
+  '/Assets/code.png',
+  '/Assets/plus.png',
+  '/Assets/ss.png',
+  '/Assets/wallpaper.jpg',
   '/manifest.json',
   '/qrCode.js',
+  '/kaplay.js',
   '/Editor/',
   '/Editor/index.html',
   '/Editor/tic80.js',
