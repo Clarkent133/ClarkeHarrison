@@ -230,6 +230,13 @@
                 listArea.innerHTML = "";
                 for (const pageName in notebook) {
                     const listItem = createHTMLElement("div", "", "", "", "listItem", listArea);
+					const EditPic = createHTMLElement("img", "", "", "", "", listItem, function() {
+						if (editMode) {
+							editPageContents(pageName, pageArea);
+						} else {
+							runPage(pageName, pageArea);
+						}
+					});
                     const itemText = createHTMLElement("div", pageName, "", "", "", listItem, function() {
 						if (editMode) {
 							editPageName(pageName);
