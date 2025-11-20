@@ -8,6 +8,7 @@ const PRECACHE_URLS = [
   '/Assets/plus.png',
   '/Assets/note.png',
   '/Assets/home.png',
+  '/Assets/edit.png',
   '/Assets/expand.png',
   '/Assets/ss.png',
   '/Assets/wallpaper.jpg',
